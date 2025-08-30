@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Discusso : Where conversations find a home.
 
-## Getting Started
+## Project Requirements
 
-First, run the development server:
+**Discusso** is a social community platfor inspired by Reddit. It enables users to share posts, join discussions, and explore communities. The platform also integrates ML/DL features(in later phases) for personalized recommendations, semantic search, and content moderation.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Core Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Authentication & User Management
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+    1. User Registration & Login
+        - New users register with email + password
+        - Login with valid credentials
+        - Sessions are persisted(user stays logged in unless explicitly signed out)
+    2. Session Handling
+        - If already logged in, redirect to home(skip login page).
+        - Secure session management with JWT cookies.
+    3. Profile Management
+        - Update profile(username, avatar).
+        - Manage drafts (saved posts).
+        - Change email & password.
+        - View karma (upvotes - downvotes).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Communities
 
-## Learn More
+    1. Create Communities
+        - Users with >= **50 karma** and joined >= **50 days ago** can create a community.
+        - Communities prefixed with "d/"(like d/technology).
+    2. Explore Communities
+        - An Explore tab shows recommended communities (via ML recommendations).
+        - Users can search communities using (d/<name>).
 
-To learn more about Next.js, take a look at the following resources:
+### Posts & Feeds
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    1. Create Posts
+        - Fields:
+            * Community name (d/community)
+            * Title (required)
+            * Body (optional, formatted with Markdown-style editor: bold, italic, code, blocks, images)
+            * Tags (Mature, Spoiler, Affiliate, None)
+            * Attachments: Images/videos
+        - Options: **Publish** or **Save as Draft**.
+    2. Feed System
+        - Home Feed: posts from joined communities.
+        - Popular Feed: top upvoted posts site-wide.
+        - Explore Feed: recommened posts/communities (ML-powered).
+    3. Post Interactions
+        - Upvote/Downvote (affects karrma).
+        - Share (copy link)
+        - Comment + reply.
+        - Bookmark/save for later.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Search
 
-## Deploy on Vercel
+    1. Search by:
+        - Community (d/xyz)
+        - Post title or description
+    2. (Future ML Feature) **Semantic Search** -> FInd posts by meaning, not just keywords.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Gamification (Karma System)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    1. Karma - Total upvotes - downvotes
+    2. Karma unlocks features (like community creation).
+    3. Visible in user profile.
+
+## Planned ML/DL Features (Phase 2)
+
+    1. Personalized Feed -> Recommend posts based on user behavior.
+    2. Toxicity Detection -> Flag/report offensive comments using NLP.
+    3. Auto-Tagging -> NLP to generate suggested tags for new posts.
+    4. Semantic Search -> Use embeddings for meaning-based search
+    5. Trend Prediction -> Early prediction of which posts will become popular.
+
+## App Flow
+
+    1. Guest User
+        - Can Browse public posts.
+        - Can search communities/posts.
+        - Redirected to login when trying to upvote/comment/create.
+
+    2. Authenticated User
+        - Access home feed, communities, and profile.
+        - Create posts/draft.
+        - Vote, comment, share, and save posts.
+        - Eligible to create communities if requirements met.
+
+    3. Admin/Moderator (Future)
+        - Manage flagged posts/comments
+        - Community moderation (ban usrs, approve posts).
+
+## Tech Stack
+
+    - **Frontend & Backend**: Next.js + TailwindCSS
+    - **Database**: Supabase(Postgres)
+    - **Authentication**: Custom JWT (via Next.js API routes)
+    - **ML/DL Models**: HuggingFace/ PyTorch / Tesorflow (later integration)
+    - Deployment: Vercel
+
+## Development Roadmap
+
+### Phase 1 - UI skeleton(1-2 weeks)
+
+    - Build static pages: Home, Popular, Explore, Login/Signup, Profile, Community, Post Detail.
+
+### Phase 2 - Authentication & Profiles (1 week)
+
+    - Custom JWT - based auth
+    - User profile & session handling
+
+### Phase 3 - Core Features (2-3 weeks)
+
+    - Posts(CRUD), communities, votes, comments.
+    - Karma system.
+    - Search.
+
+### Phase 4 - ML/DL Enhancements (2-3 weeks)
+
+    - Recommendation system.
+    - Toxicity detection.
+    - Semantic search.
+    - Trend Prediction
