@@ -21,10 +21,12 @@ import {
   ArrowDownIcon as ArrowDownSolid,
   ChatBubbleOvalLeftIcon as MessageSolid,
   ShareIcon as ShareSolid,
+  ArrowLeftCircleIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import SmallCommunityInfo from "./SmallCommunityInfo";
+import { useRouter } from "next/navigation";
 /*But each post has something common that 
 from which community it is, time(how much time ago), number of upvotes, number of downvote, community image,
 I think I will ask these things in the parent component only
@@ -35,7 +37,7 @@ Maybe I will pass all this values using context
 
 const PostsContext = createContext(null);
 
-function Post({ children, post }) {
+function Post({ children, post, creatorName = "", toShowBackButton = false }) {
   //Get community using community id from post
   const community = {
     communityId: 3,
@@ -46,37 +48,56 @@ function Post({ children, post }) {
       "A community for discussing anything related to the React UI framework and its ecosystem. Join the Reactiflux Discord (reactiflux.com) for additional React discussion and help.",
   };
 
+  const router = useRouter();
+
   //Each post has, created_time, upvote count, downvote count, comments, share button,title, hasUserUpvoted/downvoted/none,number of comments
   return (
     <PostsContext.Provider value={post}>
       {" "}
-      <div className="w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col gap-1 cursor-pointer hover:bg-slate-200">
+      <div
+        className="overflow-x-hidden w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col gap-1 cursor-pointer hover:bg-slate-200"
+        onClick={() => {
+          router.push(`/posts/${post.postId}`);
+        }}
+      >
         {/* Basic header */}
-        <header className="flex gap-0.5 items-center">
-          {/* Community logo container */}
-          <div className="relative w-5 h-5 border-[1px] rounded-full">
-            <Image
-              src={community.logo}
-              alt={community.communityName.at(2).toUpperCase()}
-              fill
-              className="object-fill"
+        <header className="flex gap-1">
+          {toShowBackButton && (
+            <ArrowLeftCircleIcon
+              className="w-6 h-6"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering parent div's onClick
+                router.push("/");
+              }}
             />
-          </div>
-          {/* Community name */}
-          <div className="relative inline-block group">
-            {/* Trigger */}
-            <span className="text-sm hover:cursor-pointer hover:text-indigo-500">
-              {community.communityName} ·{" "}
-              {formatDistanceToNow(new Date(post.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
+          )}
+          <div className="flex gap-0.5 items-center">
+            {/* Community logo container */}
+            <div className="relative w-5 h-5 border-[1px] rounded-full">
+              <Image
+                src={community.logo}
+                alt={community.communityName.at(2).toUpperCase()}
+                fill
+                className="object-fill"
+              />
+            </div>
+            {/* Community name */}
+            <div className="relative inline-block group">
+              {/* Trigger */}
+              <span className="text-sm hover:cursor-pointer hover:text-indigo-500">
+                {community.communityName} ·{" "}
+                {formatDistanceToNow(new Date(post.createdAt), {
+                  addSuffix: true,
+                })}
+              </span>
 
-            {/* Hover card */}
-            <div className="absolute top-full left-0 mt-2 opacity-0 scale-95 translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 group-hover:pointer-events-auto z-50">
-              <SmallCommunityInfo community={community} />
+              {/* Hover card */}
+              <div className="absolute top-full left-0 mt-2 opacity-0 scale-95 translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 group-hover:pointer-events-auto z-50">
+                <SmallCommunityInfo community={community} />
+              </div>
             </div>
           </div>
+          {creatorName && <span>{creatorName}</span>}
         </header>
 
         <main>

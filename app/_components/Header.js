@@ -7,6 +7,7 @@ import {
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 import SidebarButton from "./SidebarButton";
+import HeaderLogo from "./HeaderLogo";
 
 function Header() {
   return (
@@ -15,14 +16,7 @@ function Header() {
         {/* SideBar button */}
         <SidebarButton />
         {/* Discusso Logo */}
-        <div className="relative h-6 w-12 md:h-12 md:w-18 2xl:h-8 2xl:w-14 cursor-pointer">
-          <Image
-            src="/discusso_logo.png"
-            alt="Discusso"
-            fill
-            className="object-fill"
-          />
-        </div>
+        <HeaderLogo />
       </div>
       <div className="flex gap-4">
         <SearchBar />

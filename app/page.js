@@ -15,6 +15,7 @@ export default function Home() {
   const post = {
     postId: 1,
     communityId: 3,
+    userId: 2,
     title: "My First post",
     description: "This is the description of the post",
     noOfComments: 233,
