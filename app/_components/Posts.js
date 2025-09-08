@@ -97,7 +97,17 @@ function Post({ children, post, creatorName = "", toShowBackButton = false }) {
               </div>
             </div>
           </div>
-          {creatorName && <span>{creatorName}</span>}
+          {creatorName && (
+            <span
+              className="hover:text-sky-600 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/user/${post.userId}`);
+              }}
+            >
+              {creatorName}
+            </span>
+          )}
         </header>
 
         <main>
