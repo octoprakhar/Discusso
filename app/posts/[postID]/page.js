@@ -16,6 +16,7 @@ async function page({ params }) {
     title: "My First post",
     description: "This is the description of the post",
     noOfComments: 233,
+    tag: "Help", //Try to generate automated using ML
     downvotes: 12,
     upvotes: 221,
     hasUserAlreadyUpvoted: true,

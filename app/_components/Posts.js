@@ -102,7 +102,7 @@ function Post({ children, post, creatorName = "", toShowBackButton = false }) {
               className="hover:text-sky-600 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(`/user/${post.userId}`);
+                router.push(`/user/${post.userId}?feeds=posts`);
               }}
             >
               {creatorName}
