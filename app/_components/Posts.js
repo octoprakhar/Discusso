@@ -37,7 +37,13 @@ Maybe I will pass all this values using context
 
 const PostsContext = createContext(null);
 
-function Post({ children, post, creatorName = "", toShowBackButton = false }) {
+function Post({
+  children,
+  post,
+  showUserNameAsMainName = false,
+  creatorName = "",
+  toShowBackButton = false,
+}) {
   //Get community using community id from post
   const community = {
     communityId: 3,
@@ -84,8 +90,15 @@ function Post({ children, post, creatorName = "", toShowBackButton = false }) {
             {/* Community name */}
             <div className="relative inline-block group">
               {/* Trigger */}
-              <span className="text-sm hover:cursor-pointer hover:text-indigo-500">
-                {community.communityName} ·{" "}
+              <span
+                className="text-sm hover:cursor-pointer hover:text-indigo-500"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering parent div's onClick
+                  router.push(`/communities/${community.communityId}`);
+                }}
+              >
+                {showUserNameAsMainName ? creatorName : community.communityName}{" "}
+                ·{" "}
                 {formatDistanceToNow(new Date(post.createdAt), {
                   addSuffix: true,
                 })}
@@ -97,7 +110,7 @@ function Post({ children, post, creatorName = "", toShowBackButton = false }) {
               </div>
             </div>
           </div>
-          {creatorName && (
+          {creatorName && !showUserNameAsMainName && (
             <span
               className="hover:text-sky-600 cursor-pointer"
               onClick={(e) => {
@@ -181,16 +194,22 @@ function PostImages() {
 
       {/* Prev Button */}
       <button
-        onClick={goToPrev}
-        className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/50 text-white px-3 py-1 rounded-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          goToPrev();
+        }}
+        className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/50 text-white px-3 py-1 rounded-full cursor-pointer"
       >
         ‹
       </button>
 
       {/* Next Button */}
       <button
-        onClick={goToNext}
-        className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/50 text-white px-3 py-1 rounded-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          goToNext();
+        }}
+        className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/50 text-white px-3 py-1 rounded-full cursor-pointer"
       >
         ›
       </button>
