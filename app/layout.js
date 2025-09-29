@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
 import { MainSideBarProvider } from "./context/MainSideBarContext";
+import HeaderWrapper from "./_components/HeaderWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,7 @@ export default function RootLayout({ children }) {
       >
         <MainSideBarProvider>
           <header>
-            <Header />
+            <HeaderWrapper />
           </header>
           <main>{children}</main>
         </MainSideBarProvider>

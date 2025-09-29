@@ -1,6 +1,7 @@
 import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { BellIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
+import CreatePostButton from "./CreatePostButton";
 
 function CommunityHeaderSection({
   communityName,
@@ -27,9 +28,7 @@ function CommunityHeaderSection({
       </div>
       {/* Action buttons */}
       <div className="px-2 py-1 flex gap-2 justify-end">
-        <div className="border-[1px] rounded-full p-2 cursor-pointer hover:bg-slate-200">
-          <PlusIcon className="h-6 w-6 md:h-10 md:w-10" />
-        </div>
+        <CreatePostButton />
         <div className="border-[1px] rounded-full p-2 cursor-pointer hover:bg-slate-200">
           <BellIcon className="h-6 w-6 md:h-10 md:w-10" />
         </div>

@@ -9,7 +9,7 @@ import SearchBar from "./SearchBar";
 import SidebarButton from "./SidebarButton";
 import HeaderLogo from "./HeaderLogo";
 
-function Header() {
+function Header({ onAddPostClick }) {
   return (
     <div className="bg-slate-100 px-2 py-4 flex justify-between items-center">
       <div className="flex gap-1">
@@ -20,7 +20,10 @@ function Header() {
       </div>
       <div className="flex gap-4">
         <SearchBar />
-        <PlusIcon className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg" />
+        <PlusIcon
+          onClick={onAddPostClick}
+          className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg"
+        />
         <BellIcon className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg" />
         <UserCircleIcon className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg" />
       </div>
