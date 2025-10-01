@@ -62,24 +62,31 @@ function MainSideBar() {
 
         {/* Sidebar content */}
         <nav className="p-4 space-y-2">
-          <Link className="block p-2 rounded hover:bg-slate-100" href="/home">
+          <Link
+            className="block p-2 rounded hover:bg-slate-100"
+            href="/"
+            onClick={closeSiderbar}
+          >
             Home
           </Link>
           <Link
             className="block p-2 rounded hover:bg-slate-100"
             href="/popular"
+            onClick={closeSiderbar}
           >
             Popular
           </Link>
           <Link
             className="block p-2 rounded hover:bg-slate-100"
             href="/explore"
+            onClick={closeSiderbar}
           >
             Explore
           </Link>
           <Link
             className="block p-2 rounded hover:bg-slate-100"
             href="/user/create-post"
+            onClick={closeSiderbar}
           >
             Create Post
           </Link>

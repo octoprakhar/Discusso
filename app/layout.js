@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "./_components/Header";
 import { MainSideBarProvider } from "./context/MainSideBarContext";
 import HeaderWrapper from "./_components/HeaderWrapper";
+import MainSideBar from "./_components/MainSideBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
           <header>
             <HeaderWrapper />
           </header>
+          <MainSideBar />
           <main>{children}</main>
         </MainSideBarProvider>
       </body>
