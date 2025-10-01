@@ -4,6 +4,7 @@ import Header from "./_components/Header";
 import { MainSideBarProvider } from "./context/MainSideBarContext";
 import HeaderWrapper from "./_components/HeaderWrapper";
 import MainSideBar from "./_components/MainSideBar";
+import { ProfileDropDownMenu } from "./context/ProfileDropDownMenu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +28,13 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased space-y-2 text-slate-800`}
       >
         <MainSideBarProvider>
-          <header>
-            <HeaderWrapper />
-          </header>
-          <MainSideBar />
-          <main>{children}</main>
+          <ProfileDropDownMenu>
+            <header>
+              <HeaderWrapper />
+            </header>
+            <MainSideBar />
+            <main>{children}</main>
+          </ProfileDropDownMenu>
         </MainSideBarProvider>
       </body>
     </html>

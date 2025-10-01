@@ -8,6 +8,7 @@ import Image from "next/image";
 import SearchBar from "./SearchBar";
 import SidebarButton from "./SidebarButton";
 import HeaderLogo from "./HeaderLogo";
+import UserProfileDropDown from "./UserProfileDropDown";
 
 function Header({ onAddPostClick }) {
   return (
@@ -25,7 +26,7 @@ function Header({ onAddPostClick }) {
           className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg"
         />
         <BellIcon className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg" />
-        <UserCircleIcon className="h-6 w-6 md:h-12 md:w-12 2xl:h-8 2xl:w-8 cursor-pointer hover:bg-slate-300 rounded-lg" />
+        <UserProfileDropDown />
       </div>
     </div>
   );

@@ -140,4 +140,5 @@
 16. "/search?q=..." = central search for posts/communities.
 17. "/communities/[communityID]/settings" = Community Settings Page for moderators/admins to manage community. (future)
 18. "/user/saved" = Saved Posts of the user
-19. "/moderation/[communityID]" = Moderation Tools(future)
+19. "/user/myProfile" = To view my profile info like total karma, upvotes, downvotes, no of contribution
+20. "/moderation/[communityID]" = Moderation Tools(future)
