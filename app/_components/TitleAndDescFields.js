@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-function TitleAndDescFields() {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
+  const [title, setTitle] = useState(draftTitle);
+  const [body, setBody] = useState(draftBody);
   const [links, setLinks] = useState([]);
   const [keyLink, setKeyLink] = useState("");
   const [valueLink, setValueLink] = useState("");

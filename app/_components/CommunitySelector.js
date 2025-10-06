@@ -8,12 +8,19 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import CommunityBrief from "./CommunityBrief";
 
-function CommunitySelector({ communityList }) {
+function CommunitySelector({
+  communityList,
+  draftedCommunity = "",
+  draftedCommunityId = -1,
+}) {
   const [filteredCommunity, setFilteredCommunity] = useState(communityList);
   const [toShowInput, setToShowInput] = useState(false);
   const containerRef = useRef(null); // ref for outside click detection
-  const [selectedCommunityId, setSelectedCommunityId] = useState(null);
-  const [inputCommunityName, setInputCommunityName] = useState("");
+  const [selectedCommunityId, setSelectedCommunityId] = useState(
+    draftedCommunityId > 0 ? draftedCommunityId : null
+  );
+  const [inputCommunityName, setInputCommunityName] =
+    useState(draftedCommunity);
 
   const openInputField = () => {
     setToShowInput(true);

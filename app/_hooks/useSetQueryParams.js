@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export function useSetQueryParams() {
+export function useSetQueryParams(customPathName = "") {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -13,7 +13,10 @@ export function useSetQueryParams() {
     } else {
       params.delete(key);
     }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(
+      `${customPathName ? customPathName : pathname}?${params.toString()}`,
+      { scroll: false }
+    );
   };
 
   return { setQueryParam };

@@ -40,6 +40,8 @@
             * Tags (Mature, Spoiler, Affiliate, None)
             * Attachments: Images/videos
         - Options: **Publish** or **Save as Draft**.
+        - User can save upto 20 drafts.
+        - They will be shown and opened through button of profile dropdown. Initially we can't save media files and links in draft.
     2. Feed System
         - Home Feed: posts from joined communities.
         - Popular Feed: top upvoted posts site-wide.
