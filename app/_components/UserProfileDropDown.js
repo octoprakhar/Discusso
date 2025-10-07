@@ -75,6 +75,13 @@ function UserProfileDropDown() {
           >
             Settings
           </Link>
+          <Link
+            href="/user/create-community"
+            className="block px-4 py-2 hover:bg-slate-100"
+            onClick={closeDropDown}
+          >
+            Create community
+          </Link>
           <button
             className="w-full text-left block px-4 py-2 hover:bg-slate-100"
             onClick={() => {
