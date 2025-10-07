@@ -13,6 +13,9 @@ import {
   ChatBubbleOvalLeftIcon as MessageOutline,
   ShareIcon as ShareOutline,
   ChatBubbleOvalLeftIcon,
+  BookmarkSquareIcon,
+  MinusCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 
 // solid (filled) icons
@@ -43,6 +46,7 @@ function Post({
   showUserNameAsMainName = false,
   creatorName = "",
   toShowBackButton = false,
+  toShowSavePostButton = true,
 }) {
   //Get community using community id from post
   const community = {
@@ -67,59 +71,82 @@ function Post({
         }}
       >
         {/* Basic header */}
-        <header className="flex gap-1">
-          {toShowBackButton && (
-            <ArrowLeftCircleIcon
-              className="w-6 h-6"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering parent div's onClick
-                router.push("/");
-              }}
-            />
-          )}
-          <div className="flex gap-0.5 items-center">
-            {/* Community logo container */}
-            <div className="relative w-5 h-5 border-[1px] rounded-full">
-              <Image
-                src={community.logo}
-                alt={community.communityName.at(2).toUpperCase()}
-                fill
-                className="object-fill"
-              />
-            </div>
-            {/* Community name */}
-            <div className="relative inline-block group">
-              {/* Trigger */}
-              <span
-                className="text-sm hover:cursor-pointer hover:text-indigo-500"
+        <header className="flex justify-between">
+          <div className="flex gap-1">
+            {toShowBackButton && (
+              <ArrowLeftCircleIcon
+                className="w-6 h-6"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent triggering parent div's onClick
-                  router.push(`/communities/${community.communityId}`);
+                  router.push("/");
                 }}
-              >
-                {showUserNameAsMainName ? creatorName : community.communityName}{" "}
-                ·{" "}
-                {formatDistanceToNow(new Date(post.createdAt), {
-                  addSuffix: true,
-                })}
-              </span>
+              />
+            )}
+            <div className="flex gap-0.5 items-center">
+              {/* Community logo container */}
+              <div className="relative w-5 h-5 border-[1px] rounded-full">
+                <Image
+                  src={community.logo}
+                  alt={community.communityName.at(2).toUpperCase()}
+                  fill
+                  className="object-fill"
+                />
+              </div>
+              {/* Community name */}
+              <div className="relative inline-block group">
+                {/* Trigger */}
+                <span
+                  className="text-sm hover:cursor-pointer hover:text-indigo-500"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering parent div's onClick
+                    router.push(`/communities/${community.communityId}`);
+                  }}
+                >
+                  {showUserNameAsMainName
+                    ? creatorName
+                    : community.communityName}{" "}
+                  ·{" "}
+                  {formatDistanceToNow(new Date(post.createdAt), {
+                    addSuffix: true,
+                  })}
+                </span>
 
-              {/* Hover card */}
-              <div className="absolute top-full left-0 mt-2 opacity-0 scale-95 translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 group-hover:pointer-events-auto z-50">
-                <SmallCommunityInfo community={community} />
+                {/* Hover card */}
+                <div className="absolute top-full left-0 mt-2 opacity-0 scale-95 translate-y-2 pointer-events-none transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 group-hover:pointer-events-auto z-50">
+                  <SmallCommunityInfo community={community} />
+                </div>
               </div>
             </div>
+            {creatorName && !showUserNameAsMainName && (
+              <span
+                className="hover:text-sky-600 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/user/${post.userId}?feeds=posts`);
+                }}
+              >
+                {creatorName}
+              </span>
+            )}
           </div>
-          {creatorName && !showUserNameAsMainName && (
-            <span
-              className="hover:text-sky-600 cursor-pointer"
+          {toShowSavePostButton ? (
+            <BookmarkSquareIcon
+              className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                router.push(`/user/${post.userId}?feeds=posts`);
+                //Pass userId and postId to server through action then navigate to saved page after saving the post
               }}
-            >
-              {creatorName}
-            </span>
+            />
+          ) : (
+            <XCircleIcon
+              className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                //Pass userId and postId to server through action then navigate to saved page after saving the post
+              }}
+            />
           )}
         </header>
 

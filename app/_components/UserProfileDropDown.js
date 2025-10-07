@@ -48,7 +48,7 @@ function UserProfileDropDown() {
             My Profile
           </Link>
           <Link
-            href="/user/posts"
+            href="/user/myPosts"
             className="block px-4 py-2 hover:bg-slate-100"
             onClick={closeDropDown}
           >

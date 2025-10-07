@@ -1,7 +1,8 @@
+// This page will tell you all of my posts.
 import { Post, PostDescription, PostImages } from "@/app/_components/Posts";
 
 export default function Page() {
-  //Get all the saved post from the user
+  //Get all the created post from the user
 
   //Dummy data
 
@@ -142,14 +143,14 @@ export default function Page() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-bold">View All Saved Post</h1>
+      <h1 className="text-3xl font-bold">View All My Post</h1>
       {posts.map((post) => (
         <Post
           key={post.postId}
           post={post}
           // showUserNameAsMainName={false}
           creatorName={post.userName}
-          toShowSavePostButton={false}
+          toShowSavePostButton={true}
         >
           <PostDescription />
           <PostImages />
