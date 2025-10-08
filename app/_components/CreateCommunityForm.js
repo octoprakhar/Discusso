@@ -1,8 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 function CreateCommunityForm() {
+  const router = useRouter();
   const [communityName, setCommunityName] = useState("");
   const [communityTitle, setCommunityTitle] = useState("");
   const [communityDesc, setCommunityDesc] = useState("");
@@ -38,6 +41,22 @@ function CreateCommunityForm() {
       communityDesc,
       communityLogo,
     });
+
+    // Simple validation example
+    if (!communityName || !communityTitle) {
+      toast.error("Please fill required fields");
+      return;
+    }
+
+    //Send it to server action. if answer is success navigate to that specific community of that person
+    const communityId = 2;
+    if (communityId) {
+      toast.success("Successfully created the community!");
+      router.push(`/communities/${communityId}`);
+    } else {
+      toast.error("Error while creating post.");
+      router.push("/");
+    }
   };
 
   return (

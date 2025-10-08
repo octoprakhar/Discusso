@@ -1,9 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
+  const router = useRouter();
   const [title, setTitle] = useState(draftTitle);
   const [body, setBody] = useState(draftBody);
   const [links, setLinks] = useState([]);
@@ -44,6 +46,26 @@ function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
 
     setKeyLink("");
     setValueLink("");
+  };
+
+  const handleCreatePost = () => {
+    //Send server action and get the result as success or failure. If success move to then home page
+    const success = true;
+    if (success) {
+      toast.success("Successfully created post!");
+      router.push("/");
+    } else {
+      toast.error("Error while creating the post.");
+    }
+  };
+
+  const handleCancelCreatePost = () => {
+    //If it is draft edit , then go back to draft page, or go back to home page
+    if (draftTitle) {
+      router.push("/user/drafts");
+    } else {
+      router.push("/");
+    }
   };
 
   const handleRemoveAllLinks = () => {
@@ -178,10 +200,16 @@ function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
       )}
 
       <div className="sm:max-w-[70vw] flex justify-end gap-2">
-        <button className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200">
+        <button
+          className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200"
+          onClick={handleCreatePost}
+        >
           Post
         </button>
-        <button className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200">
+        <button
+          className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200"
+          onClick={handleCancelCreatePost}
+        >
           Cancel
         </button>
       </div>

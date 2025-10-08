@@ -5,6 +5,8 @@ import { MainSideBarProvider } from "./context/MainSideBarContext";
 import HeaderWrapper from "./_components/HeaderWrapper";
 import MainSideBar from "./_components/MainSideBar";
 import { ProfileDropDownMenu } from "./context/ProfileDropDownMenu";
+import { Toaster } from "react-hot-toast";
+import ToasterProvider from "./_components/ToasterProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased space-y-2 text-slate-800`}
       >
+        <ToasterProvider />
         <MainSideBarProvider>
           <ProfileDropDownMenu>
             <header>

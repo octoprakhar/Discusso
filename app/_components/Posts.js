@@ -30,6 +30,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import SmallCommunityInfo from "./SmallCommunityInfo";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 /*But each post has something common that 
 from which community it is, time(how much time ago), number of upvotes, number of downvote, community image,
 I think I will ask these things in the parent component only
@@ -136,6 +137,12 @@ function Post({
                 e.preventDefault();
                 e.stopPropagation();
                 //Pass userId and postId to server through action then navigate to saved page after saving the post
+
+                const success = true;
+                //Show the toast if success show success toast
+                success
+                  ? toast.success("Post Saved Successfully")
+                  : toast.error("Error while saving the post");
               }}
             />
           ) : (
@@ -145,6 +152,14 @@ function Post({
                 e.preventDefault();
                 e.stopPropagation();
                 //Pass userId and postId to server through action then navigate to saved page after saving the post
+
+                const success = true;
+                //Show the toast if success show success toast
+                success
+                  ? toast.success("Post removed from saved list Successfully")
+                  : toast.error(
+                      "Error while removing the post from saved list"
+                    );
               }}
             />
           )}

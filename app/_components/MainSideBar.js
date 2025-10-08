@@ -85,6 +85,13 @@ function MainSideBar() {
           </Link>
           <Link
             className="block p-2 rounded hover:bg-slate-100"
+            href="/search"
+            onClick={closeSiderbar}
+          >
+            Search
+          </Link>
+          <Link
+            className="block p-2 rounded hover:bg-slate-100"
             href="/user/create-post"
             onClick={closeSiderbar}
           >

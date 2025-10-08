@@ -1,9 +1,23 @@
 "use client";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useSetQueryParams } from "../_hooks/useSetQueryParams";
+import toast from "react-hot-toast";
 
 function DraftPost({ draft }) {
   const { setQueryParam } = useSetQueryParams("/user/create-post");
+
+  const handleDeleteDraft = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    //Get result by sending the server action and get the result
+    const success = true;
+    if (success) {
+      toast.success("Successfully deleted the draft!");
+    } else {
+      toast.error("Problem occured while deleting draft.");
+    }
+  };
   return (
     <div
       onClick={() => {
@@ -28,7 +42,10 @@ function DraftPost({ draft }) {
           <PencilIcon className="h-6 w-6 md:h-10 md:w-10" />
         </div>
         <div className="flex justify-center items-center p-2 rounded-full hover:bg-slate-400 cursor-pointer">
-          <TrashIcon className="h-6 w-6 md:h-10 md:w-10" />
+          <TrashIcon
+            className="h-6 w-6 md:h-10 md:w-10"
+            onClick={handleDeleteDraft}
+          />
         </div>
       </div>
     </div>
