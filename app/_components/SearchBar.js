@@ -2,26 +2,33 @@
 "use client";
 
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useMediaQuery } from "react-responsive";
 
 function SearchBar() {
+  const router = useRouter();
   const isSmUp = useMediaQuery({ query: "(min-width: 640px)" });
   const inputRef = useRef(null);
 
-  const handleFocus = () => {
-    inputRef.current?.focus();
+  // const handleFocus = () => {
+  //   inputRef.current?.focus();
+  // };
+  const handleSearchClick = () => {
+    router.push("/search");
   };
 
   if (!isSmUp) {
-    return <MagnifyingGlassIcon className="h-6 w-6" />;
+    return (
+      <MagnifyingGlassIcon className="h-6 w-6" onClick={handleSearchClick} />
+    );
   }
   if (isSmUp) {
     //Give space as an input field
     return (
       <div
         className="bg-slate-300 flex items-center gap-2 px-2 py-1 rounded-2xl"
-        onClick={handleFocus}
+        onClick={handleSearchClick}
       >
         <MagnifyingGlassIcon className="h-6 w-6 md:h-12 md:w-10 2xl:h-8 2xl:w-8 cursor-pointer" />
         <input
