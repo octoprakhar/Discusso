@@ -8,10 +8,10 @@ import DescriptiveButton from "./DescriptiveButton";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 
 // Single Comment component (recursive)
-function Comment({ comment, userName, userProfilePhoto }) {
+function Comment({ comment, userName = "", userProfilePhoto = "" }) {
   const [showReplies, setShowReplies] = useState(false);
-  const user = `Test${comment.userId}`;
-  const photo = "/bg-1.jpg";
+  const user = userName ? userName : `Test${comment.userId}`;
+  const photo = userProfilePhoto ? userProfilePhoto : "/bg-1.jpg";
 
   const toggleShowReply = () => {
     setShowReplies((showReply) => !showReply);
