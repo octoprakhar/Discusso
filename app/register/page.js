@@ -24,11 +24,24 @@ export default function Page() {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
+
+      // Getting user's current location
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
       // Create a FormData object to send to the server action
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
       });
+      formData.append("lat", latitude);
+      formData.append("lon", longitude);
 
       const result = await registerNewUser(formData);
 
@@ -40,7 +53,11 @@ export default function Page() {
       }
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong. Please try again.");
+      if (err.code === 1) {
+        toast.error("Please allow location access to continue.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

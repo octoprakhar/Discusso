@@ -10,6 +10,7 @@ import {
   findUserByEmail,
   insertNewUser,
   saveOrUpdateRefreshToken,
+  updateUserLocation,
 } from "./data-service";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -19,10 +20,18 @@ export async function registerNewUser(formData) {
   const email = formData.get("email");
   const username = formData.get("username");
   const password = formData.get("password");
+  const lat = formData.get("lat");
+  const lon = formData.get("lon");
 
   if (!username || !email || !password) {
     return { error: "Missing required fields." };
   }
+
+  if (!lat || !lon) {
+    return { error: "Cannot get user's location" };
+  }
+
+  const userLocation = { lat, lon };
 
   const emailRegex = /^\S+@\S+\.\S+$/;
   if (!emailRegex.test(email)) {
@@ -61,6 +70,7 @@ export async function registerNewUser(formData) {
     email,
     passwordHash: hashedPassword,
     refreshToken,
+    userLocation,
   };
   const insertUser = await insertNewUser(newUser);
   if (!insertUser) {
@@ -97,6 +107,8 @@ export async function registerNewUser(formData) {
 export async function signInUser(formData) {
   const email = formData.get("email");
   const password = formData.get("password");
+  const lat = formData.get("lat");
+  const lon = formData.get("lon");
 
   //Checking whether tokens are there in cookies and whether they are expired or not
   //If tokens are there and valid just send an error message as "session is going on first logout"
@@ -110,6 +122,16 @@ export async function signInUser(formData) {
     return { error: "You are already logged in. Please logout first" };
   }
 
+  if (!email || !password) {
+    return { error: "Missing required fields." };
+  }
+
+  if (!lat || !lon) {
+    return { error: "Cannot get user's location" };
+  }
+
+  const userLocation = { lat, lon };
+
   //2. Validate credentials from DB
   const user = await findUserByEmail(email);
   if (!user) {
@@ -119,6 +141,13 @@ export async function signInUser(formData) {
   const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
   if (!isPasswordValid) {
     return { error: "Invalid credentials" };
+  }
+
+  // Update user's location
+  try {
+    await updateUserLocation(email, userLocation);
+  } catch (err) {
+    return { error: err.message };
   }
 
   // 3. Generate new tokens

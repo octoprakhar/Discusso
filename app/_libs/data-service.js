@@ -63,3 +63,18 @@ export async function saveOrUpdateRefreshToken(email, token) {
 
   return data;
 }
+
+export async function updateUserLocation(email, userLocation) {
+  const { data, error } = await supabase
+    .from("User")
+    .update({ userLocation: userLocation })
+    .eq("email", email)
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Error while updating user's location");
+  }
+
+  return data;
+}
