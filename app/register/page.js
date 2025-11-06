@@ -2,8 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import ErrorMessage from "../_components/ErrorMessage";
+import { registerNewUser } from "../_libs/actions";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import SmallSpinner from "../_components/SmallSpinner";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Page() {
+  const [loading, setLoading] = useState(false);
   //Something I need as an error array
   const {
     register,
@@ -12,9 +19,31 @@ export default function Page() {
     watch,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
-    //Sending data to backend
+  const router = useRouter();
+
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      // Create a FormData object to send to the server action
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      const result = await registerNewUser(formData);
+
+      if (result?.error) {
+        toast.error(result.error);
+      } else if (result?.success) {
+        toast.success(result.message || "User registered successfully");
+        router.push("/");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,6 +97,7 @@ export default function Page() {
           )}
           {/* Cofirm password block */}
           <input
+            type="password"
             placeholder="Cofirm password..."
             {...register("confirm_password", {
               validate: (value) =>
@@ -80,16 +110,28 @@ export default function Page() {
           )}
           <div className="text-sm sm:text-base md:text-lg lg:text-xl">
             <span>Already a Discussor? </span>
-            <button className="text-indigo-400 underline cursor-pointer">
+            <Link
+              href={"/login"}
+              className="text-indigo-400 underline cursor-pointer"
+            >
               Login now
-            </button>
+            </Link>
           </div>
         </div>
         <button
           type="submit"
-          className="rounded-2xl text-center border-2 w-full cursor-pointer hover:bg-indigo-500 hover:text-slate-100 py-3 text-xl sm:text-2xl md:text-3xl xl:text-2xl"
+          disabled={loading}
+          className={`rounded-2xl text-center border-2 w-full cursor-pointer py-3 text-xl sm:text-2xl md:text-3xl xl:text-2xl transition-colors ${
+            loading
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "hover:bg-indigo-500 hover:text-slate-100"
+          } flex justify-center items-center`} // Added flex, justify-center, and items-center
         >
-          Register Now
+          {loading ? (
+            <SmallSpinner size="w-6 h-6" color="border-sky-500" />
+          ) : (
+            "Register Now"
+          )}
         </button>
       </form>
     </div>

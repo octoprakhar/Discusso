@@ -2,8 +2,16 @@
 
 import { useForm } from "react-hook-form";
 import ErrorMessage from "../_components/ErrorMessage";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signInUser } from "../_libs/actions";
+import toast from "react-hot-toast";
+import Link from "next/link";
+import SmallSpinner from "../_components/SmallSpinner";
 
 export default function Page() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   //Something I need as an error array
   const {
     register,
@@ -12,9 +20,28 @@ export default function Page() {
     watch,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
-    //Sending data to backend
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      const result = await signInUser(formData);
+
+      if (result?.error) {
+        toast.error(result.error);
+      } else if (result?.success) {
+        toast.success(result.message || "User registered successfully");
+        router.push("/");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,6 +71,7 @@ export default function Page() {
           {/* password block */}
           <input
             placeholder="Enter a password..."
+            type="password"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -58,16 +86,28 @@ export default function Page() {
           )}
           <div className="text-sm sm:text-base md:text-lg lg:text-xl">
             <span>New to Discusso? </span>
-            <button className="text-indigo-400 underline cursor-pointer">
+            <Link
+              href={"/register"}
+              className="text-indigo-400 underline cursor-pointer"
+            >
               Register Now
-            </button>
+            </Link>
           </div>
         </div>
         <button
           type="submit"
-          className="rounded-2xl text-center border-2 w-full cursor-pointer hover:bg-indigo-500 hover:text-slate-100 py-3 text-xl sm:text-2xl md:text-3xl xl:text-2xl"
+          disabled={loading}
+          className={`rounded-2xl text-center border-2 w-full cursor-pointer py-3 text-xl sm:text-2xl md:text-3xl xl:text-2xl transition-colors ${
+            loading
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "hover:bg-indigo-500 hover:text-slate-100"
+          } flex justify-center items-center`} // Added flex, justify-center, and items-center
         >
-          Login
+          {loading ? (
+            <SmallSpinner size="w-6 h-6" color="border-sky-500" />
+          ) : (
+            "Login Now"
+          )}
         </button>
       </form>
     </div>

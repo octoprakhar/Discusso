@@ -1,14 +1,47 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useProfileDropDown } from "../context/ProfileDropDownMenu";
 import Link from "next/link";
+import { signOutUser } from "../_libs/actions";
+import SmallSpinner from "./SmallSpinner";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 function UserProfileDropDown() {
   const { open, toggleDropDown, closeDropDown } = useProfileDropDown();
   const menuRef = useRef(null);
+  const router = useRouter();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loadingSession, setLoadingSession] = useState(true);
+  const [isLoadingLogout, setIsLoadingLogout] = useState(false);
+
+  // Fetch session on mount
+  useEffect(() => {
+    let mounted = true;
+    async function fetchSession() {
+      try {
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
+        if (!mounted) return;
+        if (res.ok) {
+          const data = await res.json();
+          setIsAuthenticated(!!data?.authenticated);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        if (mounted) setLoadingSession(false);
+      }
+    }
+    fetchSession();
+    return () => {
+      mounted = false;
+    };
+  }, []);
   // Close on ESC
   useEffect(() => {
     const onKey = (e) => {
@@ -28,6 +61,25 @@ function UserProfileDropDown() {
     if (open) document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [open, closeDropDown]);
+
+  const handleLogout = async () => {
+    console.log("Handle logout called....");
+    try {
+      setIsLoadingLogout(true);
+      const res = await signOutUser();
+      console.log(res);
+      if (res.error) {
+        toast.error(res.error);
+      }
+
+      toast.success("User Logged out succesfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong while logging out");
+    } finally {
+      setIsLoadingLogout(false);
+    }
+  };
 
   return (
     <div className="relative" ref={menuRef}>
@@ -82,15 +134,32 @@ function UserProfileDropDown() {
           >
             Create community
           </Link>
-          <button
-            className="w-full text-left block px-4 py-2 hover:bg-slate-100"
-            onClick={() => {
-              closeDropDown();
-              // add your logout logic here
-            }}
-          >
-            Log out
-          </button>
+          {!loadingSession && isAuthenticated && (
+            <button
+              className="w-full text-left block px-4 py-2 hover:bg-slate-100"
+              onClick={async () => {
+                try {
+                  await handleLogout();
+                  router.push("/login");
+                } catch (error) {
+                  console.error("Logout failed:", error);
+                }
+              }}
+            >
+              {isLoadingLogout ? <SmallSpinner /> : "Log out"}
+            </button>
+          )}
+
+          {/* If not authenticated, you can optionally show Sign In */}
+          {!loadingSession && !isAuthenticated && (
+            <Link
+              href="/login"
+              className="block px-4 py-2 hover:bg-slate-100"
+              onClick={closeDropDown}
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       )}
     </div>
