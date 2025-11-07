@@ -38,55 +38,55 @@ export default async function Page({ searchParams }) {
 
   const communityList = [
     {
-      communityId: 1,
+      communityId: "ed8f5e57-2160-48f6-8f0f-046fe76de11f", //testing purpose
       icon: "/bg-1.jpg",
       name: "d/adventure",
       noOfMembers: 244,
     },
     {
-      communityId: 2,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/wetehr",
       noOfMembers: 244,
     },
     {
-      communityId: 3,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/ryhdnufg",
       noOfMembers: 244,
     },
     {
-      communityId: 4,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/kfnhof",
       noOfMembers: 244,
     },
     {
-      communityId: 5,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/watet",
       noOfMembers: 244,
     },
     {
-      communityId: 6,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/jdoif",
       noOfMembers: 244,
     },
     {
-      communityId: 7,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/ghcyu",
       noOfMembers: 244,
     },
     {
-      communityId: 8,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/asdfgh",
       noOfMembers: 244,
     },
     {
-      communityId: 9,
+      communityId: crypto.randomUUID(),
       icon: "/bg-1.jpg",
       name: "d/poiu",
       noOfMembers: 244,

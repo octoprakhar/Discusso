@@ -207,7 +207,7 @@ function PostDescription() {
 //Images will be array of string and I need to show them as a button to previous and next and also previous and next button
 function PostImages() {
   const post = useContext(PostsContext);
-  const images = post?.images || [];
+  const images = post?.media?.images || [];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (images.length === 0) {
@@ -272,25 +272,27 @@ function PostImages() {
   );
 }
 
-//This will be array of key value pairs
+//This will be a object of key value pairs
 function PostLink() {
   const post = useContext(PostsContext);
 
+  // Ensure post.links exists and is a valid object
+  if (!post.links || typeof post.links !== "object") {
+    return null;
+  }
+
   return (
-    <div className="border-[1px] rounded-b-2xl p-4 w-full flex gap-4 mb-2">
-      {post.links.map((obj, idx) => {
-        const [key, value] = Object.entries(obj)[0]; // get first pair
-        return (
-          <Link
-            key={idx}
-            href={value}
-            target="_blank"
-            className="text-blue-500 underline"
-          >
-            {key}
-          </Link>
-        );
-      })}
+    <div className="border-[1px] rounded-b-2xl p-4 w-full flex gap-4 mb-2 flex-wrap">
+      {Object.entries(post.links).map(([key, value], idx) => (
+        <Link
+          key={idx}
+          href={value}
+          target="_blank"
+          className="text-blue-500 underline hover:text-blue-700"
+        >
+          {key}
+        </Link>
+      ))}
     </div>
   );
 }

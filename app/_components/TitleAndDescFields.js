@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { createPost } from "../_libs/actions";
+import SmallSpinner from "./SmallSpinner";
 
 function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
   const router = useRouter();
@@ -13,8 +15,10 @@ function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
   const [valueLink, setValueLink] = useState("");
   const searchParams = useSearchParams();
   const postType = searchParams.get("postType");
+  const communityId = searchParams.get("com") || "";
 
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Select files
   const handleSelectMedia = (e) => {
@@ -48,14 +52,35 @@ function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
     setValueLink("");
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     //Send server action and get the result as success or failure. If success move to then home page
-    const success = true;
-    if (success) {
-      toast.success("Successfully created post!");
-      router.push("/");
-    } else {
-      toast.error("Error while creating the post.");
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", body);
+
+      //I need to encode links
+      formData.append("links", JSON.stringify(links));
+
+      // Appending media files individually so that server will get them one by one
+      mediaFiles.forEach((file) => {
+        formData.append("media", file);
+      });
+
+      formData.append("communityId", communityId || "");
+
+      const result = await createPost(formData);
+      if (result.success) {
+        toast.success("Successfully created post!");
+        router.push("/");
+      } else {
+        toast.error(result.error);
+      }
+    } catch (err) {
+      throw new Error(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,9 +227,16 @@ function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
       <div className="sm:max-w-[70vw] flex justify-end gap-2">
         <button
           className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200"
-          onClick={handleCreatePost}
+          onClick={async () => {
+            try {
+              await handleCreatePost();
+            } catch (err) {
+              console.log(err);
+              toast.error("Something went wrong while creating post.");
+            }
+          }}
         >
-          Post
+          {isLoading ? <SmallSpinner /> : "Post"}
         </button>
         <button
           className="text-2xl px-2 py-1 rounded-xl border-2 border-slate-500 cursor-pointer hover:bg-slate-200"

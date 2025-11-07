@@ -139,6 +139,7 @@ function UserProfileDropDown() {
               className="w-full text-left block px-4 py-2 hover:bg-slate-100"
               onClick={async () => {
                 try {
+                  closeDropDown();
                   await handleLogout();
                   router.push("/login");
                 } catch (error) {

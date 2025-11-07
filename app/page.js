@@ -7,8 +7,17 @@ import {
   PostLink,
   PostVideo,
 } from "./_components/Posts";
+import { getAllPosts } from "./_libs/data-service";
 
-export default function Home() {
+export default async function Home() {
+  //Getting all the posts in the starting of the page
+  const posts = await getAllPosts();
+
+  if (!posts) {
+    return <h1>We do not have any posts to show for now.</h1>;
+  }
+
+  console.log(posts);
   {
     /* Creating Dummy post */
   }
@@ -35,12 +44,13 @@ export default function Home() {
   return (
     <>
       <MainSideBar />
-      <Post post={post}>
-        <PostDescription />
-        {/* <PostVideo /> */}
-        <PostImages />
-        <PostLink />
-      </Post>
+      {posts.map((post) => (
+        <Post key={post.postId} post={post}>
+          {post.description && <PostDescription />}
+          {post.media?.images && <PostImages />}
+          {post.links && <PostLink />}
+        </Post>
+      ))}
     </>
   );
 }

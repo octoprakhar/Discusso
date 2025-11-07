@@ -8,9 +8,12 @@ import {
 } from "../utils/tokenUtils";
 import {
   findUserByEmail,
+  findUserIdbyEmail,
   insertNewUser,
+  insertPost,
   saveOrUpdateRefreshToken,
   updateUserLocation,
+  uploadPostImages,
 } from "./data-service";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -229,4 +232,80 @@ export async function signOutUser(formData) {
   // redirect after logout
   // redirect("/login");
   return { success: true, message: "User login successfully." };
+}
+
+// Action related to Posts
+export async function createPost(formData) {
+  const title = formData.get("title");
+  const description = formData.get("description");
+  // const media = formData.get("media");
+  const communityId = formData.get("communityId") || null;
+
+  // Validating whther communityId and title shouldn't be null
+  if (!communityId) {
+    return { error: "Post can only be created in a given community." };
+  }
+
+  if (!title) {
+    return { error: "Title is required." };
+  }
+
+  //TODO verify whether user has joined that community or not.
+
+  //Parse links JSON
+  const linksJson = JSON.parse(formData.get("links") || "[]");
+
+  //We will convert [{key, value}] to {key:value} to upload to database
+  const linksObject = {};
+  linksJson.forEach((l) => {
+    if (l.key && l.value) {
+      linksObject[l.key] = l.value;
+    }
+  });
+
+  //Uploading the media files to supabase and get all the links
+  const files = formData.getAll("media");
+  const uploadedUrls = [];
+
+  try {
+    for (const file of files) {
+      const publicUrl = await uploadPostImages(file);
+      uploadedUrls.push(publicUrl);
+    }
+
+    //Getting userId to prepare post object before uploading
+
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get("refresh_token")?.value;
+    const payload = await verifyRefreshToken(refreshToken);
+    const email = payload.userId || payload.email;
+
+    const userId = await findUserIdbyEmail(email);
+    if (!userId) {
+      return { error: "No user found. Please register yourself again." };
+    }
+
+    // Preparing post object
+    const post = {
+      communityId,
+      userId,
+      title,
+      description,
+      media: { images: uploadedUrls },
+      links: linksObject,
+    };
+
+    await insertPost(post);
+  } catch (err) {
+    return { error: err.message };
+  }
+
+  // console.log(uploadedUrls);
+
+  // console.log(linksObject);
+
+  // console.log(formData);
+  // console.log(communityId == "null"); // True
+
+  return { success: "User Created succesfully" };
 }

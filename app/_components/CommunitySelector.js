@@ -7,6 +7,7 @@ import {
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import CommunityBrief from "./CommunityBrief";
+import { useSetQueryParams } from "../_hooks/useSetQueryParams";
 
 function CommunitySelector({
   communityList,
@@ -21,6 +22,8 @@ function CommunitySelector({
   );
   const [inputCommunityName, setInputCommunityName] =
     useState(draftedCommunity);
+
+  const { setQueryParam } = useSetQueryParams();
 
   const openInputField = () => {
     setToShowInput(true);
@@ -58,6 +61,7 @@ function CommunitySelector({
   //Handle community selection
   const handleCommunitySelect = (id) => {
     setSelectedCommunityId(id);
+    setQueryParam("com", id);
 
     const selectedCommunity = communityList.find(
       (community) => community.communityId === id
@@ -101,7 +105,7 @@ function CommunitySelector({
                 selectedCommunityId
                   ? communityList.find(
                       (c) => c.communityId === selectedCommunityId
-                    ).icon
+                    )?.icon || "/discusso_logo.png"
                   : "/discusso_logo.png"
               }
               alt="Logo"
