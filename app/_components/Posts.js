@@ -44,20 +44,23 @@ const PostsContext = createContext(null);
 function Post({
   children,
   post,
-  showUserNameAsMainName = false,
-  creatorName = "",
-  toShowBackButton = false,
-  toShowSavePostButton = true,
-}) {
-  //Get community using community id from post
-  const community = {
+  community = {
     communityId: 3,
     logo: "/discusso_logo.png",
     communityName: "d/myFirstBlogs",
     totalCommunityMembers: 122,
     description:
       "A community for discussing anything related to the React UI framework and its ecosystem. Join the Reactiflux Discord (reactiflux.com) for additional React discussion and help.",
-  };
+  },
+  showUserNameAsMainName = false,
+  creatorName = "",
+  toShowBackButton = false,
+  toShowSavePostButton = true,
+}) {
+  //Get community using community id from post
+  // const community = {
+
+  // };
 
   const router = useRouter();
 
@@ -90,7 +93,7 @@ function Post({
                   src={community.logo}
                   alt={community.communityName.at(2).toUpperCase()}
                   fill
-                  className="object-fill"
+                  className="object-fill rounded-full"
                 />
               </div>
               {/* Community name */}
@@ -176,12 +179,12 @@ function Post({
           {/* If user already upvoted or not */}
           <DescriptiveButton
             icon={<ArrowUpSolid className="w-4 h-4" />}
-            title={post.upvotes}
+            title={post.noOfUpvotes}
             isAlreadyClicked={post.hasUserAlreadyUpvoted}
           />
           <DescriptiveButton
             icon={<ArrowDownSolid className="w-4 h-4" />}
-            title={post.downvotes}
+            title={post.noOfDownvotes}
             isAlreadyClicked={post.hasUserAlreadyDownvoted}
           />
 
@@ -289,6 +292,9 @@ function PostLink() {
           href={value}
           target="_blank"
           className="text-blue-500 underline hover:text-blue-700"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
         >
           {key}
         </Link>

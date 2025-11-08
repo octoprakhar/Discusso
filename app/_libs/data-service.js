@@ -161,3 +161,66 @@ export async function insertPost(post) {
 
   return data;
 }
+
+export async function getCommunityById(id) {
+  let { data, error } = await supabase
+    .from("Community")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!data) {
+    return null; // No Community found
+  }
+
+  if (error) {
+    console.error(error);
+    throw new Error("Error while finding community");
+  }
+
+  return data;
+}
+
+export async function getNumberOfMemberInCommunity(communityId) {
+  const { count, error } = await supabase
+    .from("CommunityInteraction")
+    .select("*", { count: "exact" })
+    .eq("communityId", communityId)
+    .eq("isMember", true);
+
+  if (error) {
+    console.error("Error counting members:", error);
+    throw error;
+  }
+
+  return count ?? 0;
+}
+
+export async function getPostUpvotesOrDownvotesCount(postId, isCountUpvote) {
+  const { count, error } = await supabase
+    .from("PostInteraction")
+    .select("*", { count: "exact" })
+    .eq("postId", postId)
+    .eq("vote", isCountUpvote ? 1 : -1);
+
+  if (error) {
+    console.error("Error counting votes:", error);
+    throw error;
+  }
+
+  return count ?? 0;
+}
+
+export async function getPostCommentsCount(postId) {
+  const { count, error } = await supabase
+    .from("Comment")
+    .select("*", { count: "exact" })
+    .eq("postId", postId);
+
+  if (error) {
+    console.error("Error counting comments:", error);
+    throw error;
+  }
+
+  return count ?? 0;
+}
