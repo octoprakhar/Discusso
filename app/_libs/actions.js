@@ -9,11 +9,15 @@ import {
 import {
   findUserByEmail,
   findUserIdbyEmail,
+  getPostWithFullData,
   insertNewUser,
   insertPost,
   saveOrUpdateRefreshToken,
+  updatePostInteraction,
   updateUserLocation,
   uploadPostImages,
+  upsertPostInteraction,
+  userInteractionWithPost,
 } from "./data-service";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -308,4 +312,68 @@ export async function createPost(formData) {
   // console.log(communityId == "null"); // True
 
   return { success: "User Created succesfully" };
+}
+
+export async function togglePostVote(formData) {
+  //Check which vote to toggle(upvote or downvote)
+  const postId = formData.get("postId");
+  const vote = Number(formData.get("vote"));
+
+  if (!vote || !postId) {
+    return { error: "Incomplete Data... We can't complete this operation" };
+  }
+
+  //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
+  const cookieStore = await cookies();
+  const existingAccess = cookieStore.get("access_token");
+  const existingRefresh = cookieStore.get("refresh_token");
+
+  if (!existingAccess || !existingRefresh) {
+    return { error: "You need to sign in before performing this action" };
+  }
+
+  try {
+    //Check user's interaction with the post
+    const payload = await verifyRefreshToken(existingRefresh.value);
+    const email = payload.userId || payload.email;
+
+    const userId = await findUserIdbyEmail(email);
+
+    const userExistingInteraction = await userInteractionWithPost(
+      userId,
+      postId
+    );
+
+    //For upvote
+    if (vote === 1) {
+      if (userExistingInteraction === 1) {
+        //if user has already upvoted then remove the upvote, i.e delete that post interaction row
+        // We will update the vote to 0 and not delete. Coz in future if I add more columns for post interaction it won't be the only reason to delete the row
+        await upsertPostInteraction(userId, postId, "vote", 0); // vote is 0 means no vote, just not deleted the row.
+      } else if (userExistingInteraction === -1) {
+        //If user has already downvoted then update from from -1 to 1.
+        await upsertPostInteraction(userId, postId, "vote", 1);
+      } else {
+        //if no interaction was present then just add new interaction with vote 1
+        await upsertPostInteraction(userId, postId, "vote", 1);
+      }
+    } else {
+      if (userExistingInteraction === 1) {
+        await upsertPostInteraction(userId, postId, "vote", -1); // vote is 0 means no vote, just not deleted the row.
+      } else if (userExistingInteraction === -1) {
+        //If user has already downvoted then update from from -1 to 1.
+        await upsertPostInteraction(userId, postId, "vote", 0);
+      } else {
+        await upsertPostInteraction(userId, postId, "vote", -1);
+      }
+    }
+
+    //Then refetch the post data again for the screen/ (If possible only fetch that post's updated data, to reduce lagging)
+    const updatedPost = await getPostWithFullData(postId, userId);
+
+    return { success: "Post voted successfully", post: updatedPost };
+  } catch (err) {
+    console.error(err);
+    return { error: "Something went wrong." };
+  }
 }

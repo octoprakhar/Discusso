@@ -224,3 +224,163 @@ export async function getPostCommentsCount(postId) {
 
   return count ?? 0;
 }
+
+export async function userInteractionWithPost(userId, postId) {
+  const { data, error } = await supabase
+    .from("PostInteraction")
+    .select("vote")
+    .eq("postId", postId)
+    .eq("userId", userId);
+
+  if (error) {
+    console.error("Error getting user vote:", error);
+    return 0;
+  }
+
+  if (!data || data.length === 0) {
+    return 0; // user has no interaction
+  }
+
+  return data[0].vote; // return 1 or -1
+}
+
+export async function upsertPostInteraction(userId, postId, columnName, value) {
+  // Prevent modifying disallowed columns
+  const allowedColumns = ["vote"];
+
+  if (!allowedColumns.includes(columnName)) {
+    throw new Error("Invalid column name");
+  }
+
+  const updateObj = {
+    userId,
+    postId,
+    lastUpdatedAt: new Date().toISOString(),
+    [columnName]: value, // dynamic column assignment
+  };
+
+  const { data, error } = await supabase
+    .from("PostInteraction")
+    .upsert(updateObj, {
+      onConflict: "postId,userId",
+    })
+    .select();
+
+  if (error) {
+    console.error("Error upserting interaction:", error);
+    throw new Error("Could not upsert post interaction");
+  }
+
+  return data;
+}
+
+//Get all data of only one post
+export async function getPostWithFullData(postOrPostId, userId) {
+  let post = null;
+  let postId = null;
+
+  // CASE 1: post object provided
+  if (typeof postOrPostId === "object" && postOrPostId !== null) {
+    post = postOrPostId;
+    postId = post.id;
+  }
+
+  // CASE 2: only postId provided
+  if (!post) {
+    postId = postOrPostId;
+
+    const { data, error } = await supabase
+      .from("Post")
+      .select("*")
+      .eq("id", postId)
+      .single();
+
+    if (error) throw error;
+
+    post = data;
+  }
+
+  // Fetch related metadata
+
+  const [noOfUpvotes, noOfDownvotes, noOfComments, userVote] =
+    await Promise.all([
+      getPostUpvotesOrDownvotesCount(postId, true),
+      getPostUpvotesOrDownvotesCount(postId, false),
+      getPostCommentsCount(postId),
+      userInteractionWithPost(userId, postId),
+    ]);
+
+  return {
+    ...post,
+    noOfUpvotes,
+    noOfDownvotes,
+    noOfComments,
+    hasUserAlreadyUpvoted: userVote === 1,
+    hasUserAlreadyDownvoted: userVote === -1,
+  };
+}
+
+//Getting all the data for more than one post in least amount of queries
+export async function getPostsWithFullData(posts, userId) {
+  const postIds = posts.map((p) => p.id);
+
+  if (postIds.length === 0) return posts;
+
+  // Bulk fetch all data
+  const [voteData, commentData, userInteractions] = await Promise.all([
+    supabase
+      .from("PostInteraction")
+      .select("postId, vote")
+      .in("postId", postIds),
+
+    supabase.from("Comment").select("postId").in("postId", postIds),
+
+    userId
+      ? supabase
+          .from("PostInteraction")
+          .select("postId, vote")
+          .eq("userId", userId)
+          .in("postId", postIds)
+      : { data: [] },
+  ]);
+
+  // Maps for fast lookups
+  const upvotesMap = {};
+  const downvotesMap = {};
+  const commentsMap = {};
+  const userInteractionMap = {};
+
+  // Upvotes & downvotes
+  voteData.data?.forEach((row) => {
+    if (row.vote === 1) {
+      upvotesMap[row.postId] = (upvotesMap[row.postId] || 0) + 1;
+    } else if (row.vote === -1) {
+      downvotesMap[row.postId] = (downvotesMap[row.postId] || 0) + 1;
+    }
+  });
+
+  // Comments
+  commentData.data?.forEach((row) => {
+    commentsMap[row.postId] = (commentsMap[row.postId] || 0) + 1;
+  });
+
+  // User interactions
+  userInteractions.data?.forEach((row) => {
+    userInteractionMap[row.postId] = row.vote;
+  });
+
+  // Merge into the original posts
+  return posts.map((post) => {
+    const pid = post.id;
+    const userVote = userInteractionMap[pid] ?? 0;
+
+    return {
+      ...post,
+      noOfUpvotes: upvotesMap[pid] || 0,
+      noOfDownvotes: downvotesMap[pid] || 0,
+      noOfComments: commentsMap[pid] || 0,
+      hasUserAlreadyUpvoted: userVote === 1,
+      hasUserAlreadyDownvoted: userVote === -1,
+    };
+  });
+}

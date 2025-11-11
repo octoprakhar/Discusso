@@ -31,6 +31,7 @@ import { formatDistanceToNow } from "date-fns";
 import SmallCommunityInfo from "./SmallCommunityInfo";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { togglePostVote } from "../_libs/actions";
 /*But each post has something common that 
 from which community it is, time(how much time ago), number of upvotes, number of downvote, community image,
 I think I will ask these things in the parent component only
@@ -63,15 +64,85 @@ function Post({
   // };
 
   const router = useRouter();
+  const [updatedPost, setUpdatedPost] = useState(post);
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  const handlePostVote = async (vote) => {
+    if (isProcessing) return; // prevent spamming click
+    setIsProcessing(true);
+
+    // store old state for rollback
+    const oldState = updatedPost;
+    let optimistic = { ...updatedPost };
+
+    // ---- Optimistic UI ----
+    if (vote === 1) {
+      if (optimistic.hasUserAlreadyUpvoted) {
+        // remove upvote
+        optimistic.noOfUpvotes -= 1;
+        optimistic.hasUserAlreadyUpvoted = false;
+      } else {
+        // add upvote
+        optimistic.noOfUpvotes += 1;
+        optimistic.hasUserAlreadyUpvoted = true;
+
+        // remove downvote (if previously clicked)
+        if (optimistic.hasUserAlreadyDownvoted) {
+          optimistic.noOfDownvotes -= 1;
+          optimistic.hasUserAlreadyDownvoted = false;
+        }
+      }
+    }
+
+    if (vote === -1) {
+      if (optimistic.hasUserAlreadyDownvoted) {
+        // remove downvote
+        optimistic.noOfDownvotes -= 1;
+        optimistic.hasUserAlreadyDownvoted = false;
+      } else {
+        // add downvote
+        optimistic.noOfDownvotes += 1;
+        optimistic.hasUserAlreadyDownvoted = true;
+
+        if (optimistic.hasUserAlreadyUpvoted) {
+          optimistic.noOfUpvotes -= 1;
+          optimistic.hasUserAlreadyUpvoted = false;
+        }
+      }
+    }
+
+    // Update UI instantly
+    setUpdatedPost(optimistic);
+
+    try {
+      const formData = new FormData();
+      formData.append("postId", updatedPost.id);
+      formData.append("vote", vote);
+
+      const res = await togglePostVote(formData);
+
+      if (res.error) {
+        setUpdatedPost(oldState);
+        toast.error(res.error);
+      } else {
+        setUpdatedPost(res.post); // use server authoritative value
+        toast.success(res.success);
+      }
+    } catch (err) {
+      setUpdatedPost(oldState);
+      toast.error("Failed to update vote");
+    }
+
+    setIsProcessing(false);
+  };
   //Each post has, created_time, upvote count, downvote count, comments, share button,title, hasUserUpvoted/downvoted/none,number of comments
   return (
-    <PostsContext.Provider value={post}>
+    <PostsContext.Provider value={updatedPost}>
       {" "}
       <div
         className="overflow-x-hidden w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col gap-1 cursor-pointer hover:bg-slate-200"
         onClick={() => {
-          router.push(`/posts/${post.postId}`);
+          router.push(`/posts/${updatedPost.postId}`);
         }}
       >
         {/* Basic header */}
@@ -110,7 +181,7 @@ function Post({
                     ? creatorName
                     : community.communityName}{" "}
                   ·{" "}
-                  {formatDistanceToNow(new Date(post.createdAt), {
+                  {formatDistanceToNow(new Date(updatedPost.createdAt), {
                     addSuffix: true,
                   })}
                 </span>
@@ -126,7 +197,7 @@ function Post({
                 className="hover:text-sky-600 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/user/${post.userId}?feeds=posts`);
+                  router.push(`/user/${updatedPost.userId}?feeds=posts`);
                 }}
               >
                 {creatorName}
@@ -170,7 +241,7 @@ function Post({
 
         <main>
           {/* Title */}
-          <h1 className="text-lg font-bold">{post.title}</h1>
+          <h1 className="text-lg font-bold">{updatedPost.title}</h1>
           {/* Children */}
           {children}
         </main>
@@ -178,19 +249,27 @@ function Post({
         <footer className="flex gap-1">
           {/* If user already upvoted or not */}
           <DescriptiveButton
+            onButtonClicked={async (e) => {
+              e.stopPropagation();
+              await handlePostVote(1);
+            }}
             icon={<ArrowUpSolid className="w-4 h-4" />}
-            title={post.noOfUpvotes}
-            isAlreadyClicked={post.hasUserAlreadyUpvoted}
+            title={updatedPost.noOfUpvotes}
+            isAlreadyClicked={updatedPost.hasUserAlreadyUpvoted}
           />
           <DescriptiveButton
+            onButtonClicked={async (e) => {
+              e.stopPropagation();
+              await handlePostVote(-1);
+            }}
             icon={<ArrowDownSolid className="w-4 h-4" />}
-            title={post.noOfDownvotes}
-            isAlreadyClicked={post.hasUserAlreadyDownvoted}
+            title={updatedPost.noOfDownvotes}
+            isAlreadyClicked={updatedPost.hasUserAlreadyDownvoted}
           />
 
           <DescriptiveButton
             icon={<ChatBubbleOvalLeftIcon className="w-4 h-4" />}
-            title={post.noOfComments}
+            title={updatedPost.noOfComments}
           />
           <DescriptiveButton
             icon={<ShareOutline className="w-4 h-4" />}
@@ -203,8 +282,8 @@ function Post({
 }
 
 function PostDescription() {
-  const post = useContext(PostsContext);
-  return <p>{post.description}</p>;
+  const updatedPost = useContext(PostsContext);
+  return <p>{updatedPost?.description}</p>;
 }
 
 //Images will be array of string and I need to show them as a button to previous and next and also previous and next button

@@ -1,94 +1,51 @@
-import toast from "react-hot-toast";
 import MainSideBar from "./_components/MainSideBar";
 import {
-  Description,
   Post,
   PostDescription,
   PostImages,
   PostLink,
-  PostVideo,
 } from "./_components/Posts";
+
 import {
   getAllPosts,
   getCommunityById,
   getNumberOfMemberInCommunity,
-  getPostCommentsCount,
-  getPostUpvotesOrDownvotesCount,
+  getPostsWithFullData,
 } from "./_libs/data-service";
+import { getUserId } from "./utils/userUtils";
 
 export default async function Home() {
-  //Getting all the posts in the starting of the page
   const posts = await getAllPosts();
-  const communityIds = posts?.map((post) => post.communityId) || [];
-  const postIds = posts?.map((post) => post.id) || [];
+  if (!posts) return <h1>No posts available right now.</h1>;
 
-  const postsWithVotesCount = await Promise.all(
-    posts.map(async (post) => {
-      const [noOfComments, noOfUpvotes, noOfDownvotes] = await Promise.all([
-        getPostCommentsCount(post.id),
-        getPostUpvotesOrDownvotesCount(post.id, true),
-        getPostUpvotesOrDownvotesCount(post.id, false),
-      ]);
+  const communityIds = posts.map((p) => p.communityId);
 
-      return { ...post, noOfComments, noOfUpvotes, noOfDownvotes };
+  const userId = await getUserId();
+
+  // metadata enrichment
+  const enrichedPosts = await getPostsWithFullData(posts, userId);
+
+  // COMMUNITY DATA
+  const communityDataList = await Promise.all(
+    communityIds.map(async (id) => {
+      const data = await getCommunityById(id);
+      const members = await getNumberOfMemberInCommunity(id);
+
+      return {
+        communityId: data.id,
+        communityName: data.name,
+        logo: data.logo,
+        description: data.description,
+        totalCommunityMembers: members,
+      };
     })
   );
-
-  //Getting all the community related data required to sent to post components
-  const communityDataList = [];
-  try {
-    for (const id of communityIds) {
-      const communityData = await getCommunityById(id);
-      const numberOfMembers = await getNumberOfMemberInCommunity(id);
-      const community = {
-        communityId: communityData.id,
-        communityName: communityData.name,
-        logo: communityData.logo,
-        description: communityData.description,
-        totalCommunityMembers: numberOfMembers,
-      };
-
-      communityDataList.push(community);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-
-  console.log(postsWithVotesCount);
-
-  if (!posts) {
-    return <h1>We do not have any posts to show for now.</h1>;
-  }
-
-  // console.log(posts, communityIds);
-  {
-    /* Creating Dummy post */
-  }
-  const post = {
-    postId: 1,
-    communityId: 3,
-    userId: 2,
-    title: "My First post",
-    description: "This is the description of the post",
-    noOfComments: 233,
-    downvotes: 12,
-    upvotes: 221,
-    hasUserAlreadyUpvoted: true,
-    hasUserAlreadyDownvoted: false,
-    createdAt: "2025-09-01T14:23:00.000Z", //I will be given a simple date-time string need to convert in this format
-    images: ["/bg-1.jpg", "/discusso_logo.png"],
-    links: [
-      { github: "https://github.com/" },
-      { chatGPT: "https://chatgpt.com/c/68b67c7a-d278-8322-ba2a-c7abd8fb37b4" },
-    ],
-    video: "/sample_video.mp4",
-  };
 
   return (
     <>
       <MainSideBar />
-      {postsWithVotesCount.map((post, i) => (
-        <Post key={post.postId} post={post} community={communityDataList[i]}>
+      {enrichedPosts.map((post, i) => (
+        <Post key={post.id} post={post} community={communityDataList[i]}>
           {post.description && <PostDescription />}
           {post.media?.images && <PostImages />}
           {post.links && <PostLink />}
