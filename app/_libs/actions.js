@@ -9,6 +9,10 @@ import {
 import {
   findUserByEmail,
   findUserIdbyEmail,
+  getAllPosts,
+  getCommunityById,
+  getNumberOfMemberInCommunity,
+  getPostsWithFullData,
   getPostWithFullData,
   insertNewUser,
   insertPost,
@@ -21,6 +25,7 @@ import {
 } from "./data-service";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getUserId } from "../utils/userUtils";
 
 export async function registerNewUser(formData) {
   //Validate the data points
@@ -312,6 +317,51 @@ export async function createPost(formData) {
   // console.log(communityId == "null"); // True
 
   return { success: "User Created succesfully" };
+}
+
+export async function getAllPostsAction(formData) {
+  //FEtching logic is here
+  const offset = formData.get("offset");
+  const limit = formData.get("limit");
+
+  if (!offset || !limit || offset < 0 || limit < 0) {
+    return { error: "Invalid data is sent for pagination." };
+  }
+
+  console.log(`ServerAction: Got offset as ${offset}, and limit as ${limit}`);
+
+  try {
+    const posts = await getAllPosts(limit, offset);
+    const userId = await getUserId();
+    const enrichedPosts = await getPostsWithFullData(posts, userId);
+
+    // Fetch related community data
+    const communityDataList = await Promise.all(
+      posts.map(async (post) => {
+        const community = await getCommunityById(post.communityId);
+        const members = await getNumberOfMemberInCommunity(post.communityId);
+        return {
+          communityId: community.id,
+          communityName: community.name,
+          logo: community.logo,
+          description: community.description,
+          totalCommunityMembers: members,
+        };
+      })
+    );
+
+    console.log(enrichedPosts);
+
+    return {
+      success: "Post fetched succesfully",
+      hasMore: posts.length === limit,
+      enrichedPosts,
+      communityDataList,
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: err.message };
+  }
 }
 
 export async function togglePostVote(formData) {

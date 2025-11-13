@@ -137,8 +137,12 @@ export async function uploadPostImages(image) {
   }
 }
 
-export async function getAllPosts() {
-  let { data: Post, error } = await supabase.from("Post").select("*");
+export async function getAllPosts(limit = 5, offset = 0) {
+  let { data: Post, error } = await supabase
+    .from("Post")
+    .select("*")
+    .order("createdAt", { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (error) {
     console.error("Posts fetching failed:", error);
