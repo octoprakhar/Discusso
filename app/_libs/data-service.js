@@ -279,112 +279,49 @@ export async function upsertPostInteraction(userId, postId, columnName, value) {
 }
 
 //Get all data of only one post
-export async function getPostWithFullData(postOrPostId, userId) {
-  let post = null;
-  let postId = null;
+export async function getPostWithFullData(postId, userId) {
+  const { data, error } = await supabase.rpc("get_single_post_with_metadata", {
+    pid: postId,
+    uid: userId,
+  });
 
-  // CASE 1: post object provided
-  if (typeof postOrPostId === "object" && postOrPostId !== null) {
-    post = postOrPostId;
-    postId = post.id;
-  }
+  if (error) throw error;
+  return data[0];
+}
 
-  // CASE 2: only postId provided
-  if (!post) {
-    postId = postOrPostId;
+//Using view to load data for not signed in user
+export async function getPostswithoutUserData(limit, offset) {
+  const { data, error } = await supabase.rpc("get_guest_posts", {
+    limit_count: limit,
+    offset_count: offset,
+  });
 
-    const { data, error } = await supabase
-      .from("Post")
-      .select("*")
-      .eq("id", postId)
-      .single();
+  if (error) throw error;
+  return data;
+}
 
-    if (error) throw error;
+export async function getPostsWithUserData(userId, limit, offset) {
+  // Example usage
+  const { data, error } = await supabase.rpc(
+    "get_posts_with_user_data_and_community",
+    {
+      uid: userId,
+      limit_count: limit,
+      offset_count: offset,
+    }
+  );
 
-    post = data;
-  }
-
-  // Fetch related metadata
-
-  const [noOfUpvotes, noOfDownvotes, noOfComments, userVote] =
-    await Promise.all([
-      getPostUpvotesOrDownvotesCount(postId, true),
-      getPostUpvotesOrDownvotesCount(postId, false),
-      getPostCommentsCount(postId),
-      userInteractionWithPost(userId, postId),
-    ]);
-
-  return {
-    ...post,
-    noOfUpvotes,
-    noOfDownvotes,
-    noOfComments,
-    hasUserAlreadyUpvoted: userVote === 1,
-    hasUserAlreadyDownvoted: userVote === -1,
-  };
+  if (error) throw error;
+  return data;
 }
 
 //Getting all the data for more than one post in least amount of queries
-export async function getPostsWithFullData(posts, userId) {
-  const postIds = posts.map((p) => p.id);
-
-  if (postIds.length === 0) return posts;
-
-  // Bulk fetch all data
-  const [voteData, commentData, userInteractions] = await Promise.all([
-    supabase
-      .from("PostInteraction")
-      .select("postId, vote")
-      .in("postId", postIds),
-
-    supabase.from("Comment").select("postId").in("postId", postIds),
-
-    userId
-      ? supabase
-          .from("PostInteraction")
-          .select("postId, vote")
-          .eq("userId", userId)
-          .in("postId", postIds)
-      : { data: [] },
-  ]);
-
-  // Maps for fast lookups
-  const upvotesMap = {};
-  const downvotesMap = {};
-  const commentsMap = {};
-  const userInteractionMap = {};
-
-  // Upvotes & downvotes
-  voteData.data?.forEach((row) => {
-    if (row.vote === 1) {
-      upvotesMap[row.postId] = (upvotesMap[row.postId] || 0) + 1;
-    } else if (row.vote === -1) {
-      downvotesMap[row.postId] = (downvotesMap[row.postId] || 0) + 1;
-    }
-  });
-
-  // Comments
-  commentData.data?.forEach((row) => {
-    commentsMap[row.postId] = (commentsMap[row.postId] || 0) + 1;
-  });
-
-  // User interactions
-  userInteractions.data?.forEach((row) => {
-    userInteractionMap[row.postId] = row.vote;
-  });
-
-  // Merge into the original posts
-  return posts.map((post) => {
-    const pid = post.id;
-    const userVote = userInteractionMap[pid] ?? 0;
-
-    return {
-      ...post,
-      noOfUpvotes: upvotesMap[pid] || 0,
-      noOfDownvotes: downvotesMap[pid] || 0,
-      noOfComments: commentsMap[pid] || 0,
-      hasUserAlreadyUpvoted: userVote === 1,
-      hasUserAlreadyDownvoted: userVote === -1,
-    };
-  });
+export async function getPostsWithFullData(userId, limit = 5, offset = 0) {
+  if (userId) {
+    // user is logged in → use SQL function
+    return await getPostsWithUserData(userId, limit, offset);
+  } else {
+    // user is guest → use SQL view
+    return await getPostswithoutUserData(limit, offset);
+  }
 }

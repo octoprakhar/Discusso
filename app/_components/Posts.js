@@ -67,6 +67,8 @@ function Post({
   const [updatedPost, setUpdatedPost] = useState(post);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // console.log(`Updated posts are:\n ${JSON.stringify(updatedPost)}`);
+
   const handlePostVote = async (vote) => {
     if (isProcessing) return; // prevent spamming click
     setIsProcessing(true);

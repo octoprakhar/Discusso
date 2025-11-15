@@ -320,7 +320,6 @@ export async function createPost(formData) {
 }
 
 export async function getAllPostsAction(formData) {
-  //FEtching logic is here
   const offset = formData.get("offset");
   const limit = formData.get("limit");
 
@@ -328,33 +327,55 @@ export async function getAllPostsAction(formData) {
     return { error: "Invalid data is sent for pagination." };
   }
 
-  console.log(`ServerAction: Got offset as ${offset}, and limit as ${limit}`);
+  // console.log(`ServerAction: Got offset as ${offset}, and limit as ${limit}`);
 
   try {
-    const posts = await getAllPosts(limit, offset);
     const userId = await getUserId();
-    const enrichedPosts = await getPostsWithFullData(posts, userId);
 
-    // Fetch related community data
-    const communityDataList = await Promise.all(
-      posts.map(async (post) => {
-        const community = await getCommunityById(post.communityId);
-        const members = await getNumberOfMemberInCommunity(post.communityId);
-        return {
-          communityId: community.id,
-          communityName: community.name,
-          logo: community.logo,
-          description: community.description,
-          totalCommunityMembers: members,
-        };
-      })
-    );
+    // console.log(`Got userId as ${userId}`);
 
-    console.log(enrichedPosts);
+    // Fetch enriched posts directly from Supabase RPC
+    const rawPosts = await getPostsWithFullData(userId, limit, offset);
+
+    // console.log("Raw RPC posts:", rawPosts);
+
+    // Transform into camelCase and split
+    const enrichedPosts = rawPosts.map((p) => ({
+      id: userId ? p.post_id : p.id,
+      title: p.title,
+      description: p.description,
+      media: p.media,
+      links: p.links,
+      createdAt: userId ? p.created_at : p.createdAt,
+      userId: userId ? p.user_id : p.userId,
+
+      noOfUpvotes: userId ? p.noofupvotes : p.noOfUpvotes,
+      noOfDownvotes: userId ? p.noofdownvotes : p.noOfDownvotes,
+      noOfComments: userId ? p.noofcomments : p.noOfComments,
+
+      hasUserAlreadyUpvoted: userId ? p.hasuseralreadyupvoted : false,
+      hasUserAlreadyDownvoted: userId ? p.hasuseralreadydownvoted : false,
+
+      communityId: userId ? p.community_id : p.communityId, // still needed inside enrichedPosts
+    }));
+
+    // Extract community data list
+    const communityDataList = rawPosts.map((p) => ({
+      communityId: userId ? p.community_id : p.communityId,
+      communityName: userId ? p.community_name : p.communityName,
+      logo: userId ? p.community_logo : p.communityLogo,
+      description: userId ? p.community_description : p.communityDescription,
+      totalCommunityMembers: userId
+        ? p.total_community_members
+        : p.totalCommunityMembers,
+    }));
+
+    // console.log("enrichedPosts", enrichedPosts);
+    // console.log("communityDataList", communityDataList);
 
     return {
       success: "Post fetched succesfully",
-      hasMore: posts.length === limit,
+      hasMore: rawPosts.length === limit,
       enrichedPosts,
       communityDataList,
     };
@@ -421,7 +442,19 @@ export async function togglePostVote(formData) {
     //Then refetch the post data again for the screen/ (If possible only fetch that post's updated data, to reduce lagging)
     const updatedPost = await getPostWithFullData(postId, userId);
 
-    return { success: "Post voted successfully", post: updatedPost };
+    console.log(`Updated Posts : ${updatedPost}`);
+
+    return {
+      success: "Post voted successfully",
+      post: {
+        ...updatedPost,
+        noOfUpvotes: updatedPost.noofupvotes,
+        noOfDownvotes: updatedPost.noofdownvotes,
+        noOfComments: updatedPost.noofcomments,
+        hasUserAlreadyUpvoted: updatedPost.hasuseralreadyupvoted,
+        hasUserAlreadyDownvoted: updatedPost.hasuseralreadydownvoted,
+      },
+    };
   } catch (err) {
     console.error(err);
     return { error: "Something went wrong." };
