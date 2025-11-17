@@ -7,6 +7,7 @@ import MainSideBar from "./_components/MainSideBar";
 import { ProfileDropDownMenu } from "./context/ProfileDropDownMenu";
 import { Toaster } from "react-hot-toast";
 import ToasterProvider from "./_components/ToasterProvider";
+import ReactQueryProvider from "./providers/ReactQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,16 +30,18 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased space-y-2 text-slate-800`}
       >
-        <ToasterProvider />
-        <MainSideBarProvider>
-          <ProfileDropDownMenu>
-            <header>
-              <HeaderWrapper />
-            </header>
-            <MainSideBar />
-            <main>{children}</main>
-          </ProfileDropDownMenu>
-        </MainSideBarProvider>
+        <ReactQueryProvider>
+          <ToasterProvider />
+          <MainSideBarProvider>
+            <ProfileDropDownMenu>
+              <header>
+                <HeaderWrapper />
+              </header>
+              <MainSideBar />
+              <main>{children}</main>
+            </ProfileDropDownMenu>
+          </MainSideBarProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

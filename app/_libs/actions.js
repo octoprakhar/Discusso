@@ -335,7 +335,11 @@ export async function getAllPostsAction(formData) {
     // console.log(`Got userId as ${userId}`);
 
     // Fetch enriched posts directly from Supabase RPC
-    const rawPosts = await getPostsWithFullData(userId, limit, offset);
+    const rawPosts = await getPostsWithFullData(
+      userId,
+      Number(limit),
+      Number(offset)
+    );
 
     // console.log("Raw RPC posts:", rawPosts);
 
@@ -373,9 +377,11 @@ export async function getAllPostsAction(formData) {
     // console.log("enrichedPosts", enrichedPosts);
     // console.log("communityDataList", communityDataList);
 
+    // console.log(`Do we have more posts : ${rawPosts.length === Number(limit)}`);
+
     return {
-      success: "Post fetched succesfully",
-      hasMore: rawPosts.length === limit,
+      success: true,
+      hasMore: rawPosts.length === Number(limit),
       enrichedPosts,
       communityDataList,
     };
