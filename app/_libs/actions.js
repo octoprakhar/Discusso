@@ -12,20 +12,26 @@ import {
   getAllPosts,
   getCommunityById,
   getNumberOfMemberInCommunity,
+  getPostDataWithCommentsForSignedInUser,
   getPostsWithFullData,
   getPostWithFullData,
+  insertNewComment,
   insertNewUser,
   insertPost,
   saveOrUpdateRefreshToken,
+  toggleCommunityJoin,
   updatePostInteraction,
   updateUserLocation,
   uploadPostImages,
+  upsertCommentInteraction,
   upsertPostInteraction,
+  userInteractionWithComment,
   userInteractionWithPost,
 } from "./data-service";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUserId } from "../utils/userUtils";
+import { transformPostData } from "../utils/postUtils";
 
 export async function registerNewUser(formData) {
   //Validate the data points
@@ -460,6 +466,203 @@ export async function togglePostVote(formData) {
         hasUserAlreadyUpvoted: updatedPost.hasuseralreadyupvoted,
         hasUserAlreadyDownvoted: updatedPost.hasuseralreadydownvoted,
       },
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: "Something went wrong." };
+  }
+}
+
+export async function getSinglePostDataWithComments(formData) {
+  const postId = formData.get("postId");
+
+  try {
+    const cookieStore = await cookies();
+    const existingRefresh = cookieStore.get("refresh_token");
+    const payload = await verifyRefreshToken(existingRefresh.value);
+
+    const email = payload.userId || payload.email;
+
+    const userId = await findUserIdbyEmail(email);
+
+    const rawData = await getPostDataWithCommentsForSignedInUser(
+      userId,
+      postId
+    );
+
+    // console.log(`Got raw data as : \n`, rawData);
+
+    //Transforming the data
+    const finalData = transformPostData(rawData);
+
+    console.log("🎉The final data is \n", finalData);
+
+    return {
+      success: true,
+      data: finalData,
+    };
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: err.message };
+  }
+  // return { success: true };
+}
+
+export async function toggleCommunityJoinAction(formData) {
+  const hasUserAlreadyJoin = formData.get("hasUserAlreadyJoin") === "true";
+  const communityId = formData.get("communityId");
+
+  // console.log(`hasUserALready: ${hasUserAlreadyJoin}`);
+  // console.log(
+  //   `Is hasUserAlreadyALready a boolean: ${typeof hasUserAlreadyJoin}`
+  // );
+
+  if (!communityId) {
+    return { success: false, error: "Please provide the valid data." };
+  }
+  //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
+  const cookieStore = await cookies();
+  const existingAccess = cookieStore.get("access_token");
+  const existingRefresh = cookieStore.get("refresh_token");
+
+  if (!existingAccess || !existingRefresh) {
+    return { error: "You need to sign in before performing this action" };
+  }
+
+  try {
+    const payload = await verifyRefreshToken(existingRefresh.value);
+    const email = payload.userId || payload.email;
+    const userId = await findUserIdbyEmail(email);
+    console.log(userId);
+    if (!userId) {
+      return {
+        success: false,
+        error: "Cannot get user Id. Maybe sign in again",
+      };
+    }
+    const [data] = await toggleCommunityJoin(
+      userId,
+      communityId,
+      hasUserAlreadyJoin
+    );
+
+    console.log(`🧐 ServerAction: got data as \n`, data);
+    // console.log("Successfully changed!!");
+    return { success: true, data: data };
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function insertNewCommentAction(formData) {
+  const content = formData.get("content");
+  const postId = formData.get("postId");
+  const parentCommentId = formData.get("parentCommentId");
+
+  if (!content || !postId) {
+    return { success: false, error: "Please provide the valid data." };
+  }
+
+  console.log(
+    `🧐 Action.js: Got data as: \ncontent: ${content}\npostId: ${postId}\nparentCommentId: ${parentCommentId}`
+  );
+
+  try {
+    //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
+    const cookieStore = await cookies();
+    const existingAccess = cookieStore.get("access_token");
+    const existingRefresh = cookieStore.get("refresh_token");
+
+    if (!existingAccess || !existingRefresh) {
+      return { error: "You need to sign in before performing this action" };
+    }
+
+    const payload = await verifyRefreshToken(existingRefresh.value);
+    const email = payload.userId || payload.email;
+    const userId = await findUserIdbyEmail(email);
+    console.log(`🧐 Action.js: Got userId as: ${userId}`);
+    if (!userId) {
+      return {
+        success: false,
+        error: "Cannot get user Id. Maybe sign in again",
+      };
+    }
+
+    const data = await insertNewComment(
+      userId,
+      parentCommentId,
+      postId,
+      content
+    );
+
+    // console.log(
+    //   "🧐 ServerAction: Got data for inserting new comment is : ",
+    //   data
+    // );
+    return { success: true, data: data[0] };
+  } catch (err) {
+    console.error(`Error occured while inserting: \n`, err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function toggleCommentVote(formData) {
+  //Check which vote to toggle(upvote or downvote)
+  const commentId = formData.get("commentId");
+  const vote = Number(formData.get("vote"));
+
+  if (!vote || !commentId) {
+    return { error: "Incomplete Data... We can't complete this operation" };
+  }
+
+  //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
+  const cookieStore = await cookies();
+  const existingAccess = cookieStore.get("access_token");
+  const existingRefresh = cookieStore.get("refresh_token");
+
+  if (!existingAccess || !existingRefresh) {
+    return { error: "You need to sign in before performing this action" };
+  }
+
+  try {
+    //Check user's interaction with the post
+    const payload = await verifyRefreshToken(existingRefresh.value);
+    const email = payload.userId || payload.email;
+
+    const userId = await findUserIdbyEmail(email);
+
+    const userExistingInteraction = await userInteractionWithComment(
+      userId,
+      commentId
+    );
+
+    //For upvote
+    if (vote === 1) {
+      if (userExistingInteraction === 1) {
+        //if user has already upvoted then remove the upvote, i.e delete that post interaction row
+        // We will update the vote to 0 and not delete. Coz in future if I add more columns for post interaction it won't be the only reason to delete the row
+        await upsertCommentInteraction(userId, commentId, "vote", 0); // vote is 0 means no vote, just not deleted the row.
+      } else if (userExistingInteraction === -1) {
+        //If user has already downvoted then update from from -1 to 1.
+        await upsertCommentInteraction(userId, commentId, "vote", 1);
+      } else {
+        //if no interaction was present then just add new interaction with vote 1
+        await upsertCommentInteraction(userId, commentId, "vote", 1);
+      }
+    } else {
+      if (userExistingInteraction === 1) {
+        await upsertCommentInteraction(userId, commentId, "vote", -1); // vote is 0 means no vote, just not deleted the row.
+      } else if (userExistingInteraction === -1) {
+        //If user has already downvoted then update from from -1 to 1.
+        await upsertCommentInteraction(userId, commentId, "vote", 0);
+      } else {
+        await upsertCommentInteraction(userId, commentId, "vote", -1);
+      }
+    }
+
+    return {
+      success:
+        vote === 1 ? "User upvoted succesfully" : "User downvoted succesfully",
     };
   } catch (err) {
     console.error(err);

@@ -8,6 +8,15 @@ const nextConfig = {
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
+
+      {
+        protocol: "https",
+        hostname: "placekitten.com",
+      },
+      {
+        protocol: "https",
+        hostname: "randomuser.me",
+      },
     ],
   },
 };

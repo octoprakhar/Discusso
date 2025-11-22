@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { insertNewCommentAction } from "../_libs/actions";
+import { useComment } from "../context/CommentContext";
 
 function CommentSection() {
   const [isClick, setIsClick] = useState(false);
   const [comment, setComment] = useState("");
+
+  const { postId, onNewComment } = useComment();
 
   const handleContainerClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -17,11 +22,31 @@ function CommentSection() {
     setComment("");
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     // Before sending check the server whether the comments are empty or not
-    console.log("Comment sent:", comment);
-    setIsClick(false);
-    setComment("");
+    try {
+      setComment(comment);
+      const formData = new FormData();
+      formData.append("content", comment);
+      formData.append("postId", postId);
+      const res = await insertNewCommentAction(formData);
+      if (res.error) {
+        toast.error(res.error);
+      }
+      if (res.success && res.data) {
+        onNewComment(res.data);
+      }
+      // console.log(
+      //   "CommentSection.js: Got result after saving new comment: ",
+      //   res.data
+      // );
+      toast.success("Successfully added your comment.");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsClick(false);
+      setComment("");
+    }
   };
 
   return (

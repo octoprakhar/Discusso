@@ -67,8 +67,6 @@ function Post({
   const [updatedPost, setUpdatedPost] = useState(post);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // console.log(`Updated posts are:\n ${JSON.stringify(updatedPost)}`);
-
   const handlePostVote = async (vote) => {
     if (isProcessing) return; // prevent spamming click
     setIsProcessing(true);
@@ -137,6 +135,8 @@ function Post({
 
     setIsProcessing(false);
   };
+
+  // console.log("Got posts as ", updatedPost);
   //Each post has, created_time, upvote count, downvote count, comments, share button,title, hasUserUpvoted/downvoted/none,number of comments
   return (
     <PostsContext.Provider value={updatedPost}>
@@ -144,7 +144,7 @@ function Post({
       <div
         className="overflow-x-hidden w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col gap-1 cursor-pointer hover:bg-slate-200"
         onClick={() => {
-          router.push(`/posts/${updatedPost.postId}`);
+          router.push(`/posts/${updatedPost.id}`);
         }}
       >
         {/* Basic header */}

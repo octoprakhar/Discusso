@@ -37,6 +37,7 @@ function Comment({ comment, userName = "", userProfilePhoto = "" }) {
         downvotes={comment.downvotes}
         hasUserDownvoted={comment.hasUserDownvoted}
         hasUserUpvoted={comment.hasUserUpvoted}
+        commentId={comment.commentId}
       />
 
       {/* Replies */}
@@ -51,7 +52,12 @@ function Comment({ comment, userName = "", userProfilePhoto = "" }) {
             </button>
             <div className="ml-4 text-wrap">
               {comment.replies.map((reply) => (
-                <Comment key={reply.commentId} comment={reply} />
+                <Comment
+                  key={reply.commentId}
+                  comment={reply}
+                  userName={reply.commentCreatorName}
+                  userProfilePhoto={reply.commentUserLogo}
+                />
               ))}
             </div>
           </>
@@ -67,14 +73,19 @@ function Comment({ comment, userName = "", userProfilePhoto = "" }) {
   );
 }
 
-export default function Comments() {
-  const comments = generateComments(20);
+export default function Comments({ comments }) {
+  // const comments = generateComments(20);
   const formattedComments = formatComments(comments);
 
   return (
     <div className="mt-4">
       {formattedComments.map((comment) => (
-        <Comment key={comment.commentId} comment={comment} />
+        <Comment
+          key={comment.commentId}
+          comment={comment}
+          userName={comment.commentCreatorName}
+          userProfilePhoto={comment.commentUserLogo}
+        />
       ))}
     </div>
   );

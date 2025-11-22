@@ -301,7 +301,6 @@ export async function getPostswithoutUserData(limit, offset) {
 }
 
 export async function getPostsWithUserData(userId, limit, offset) {
-  // Example usage
   const { data, error } = await supabase.rpc(
     "get_posts_with_user_data_and_community",
     {
@@ -324,4 +323,146 @@ export async function getPostsWithFullData(userId, limit = 5, offset = 0) {
     // user is guest → use SQL view
     return await getPostswithoutUserData(limit, offset);
   }
+}
+
+export async function getPostDataWithCommentsForSignedInUser(userId, postId) {
+  //get_post_full_data_for_signedin_user_with_comments
+  const { data, error } = await supabase.rpc(
+    "get_post_full_data_for_signedin_user_with_comments",
+    {
+      uid: userId,
+      target_post_id: postId,
+    }
+  );
+
+  if (error) throw error;
+  return data;
+}
+
+export async function toggleCommunityJoin(
+  userId,
+  communityId,
+  hasUserAlreadyJoin
+) {
+  const updateObj = {
+    userId,
+    communityId,
+    joinedAt: new Date().toISOString(),
+    isMember: !hasUserAlreadyJoin,
+  };
+
+  // console.log(`Updated object is \n`, updateObj);
+
+  const { data, error } = await supabase
+    .from("CommunityInteraction")
+    .upsert(updateObj, {
+      onConflict: "userId,communityId",
+    })
+    .select();
+
+  if (error) {
+    console.error("Error upserting interaction:", error);
+    throw new Error("Could not upsert community interaction");
+  }
+
+  return data;
+}
+
+export async function insertNewComment(
+  userId,
+  parentCommentId,
+  postId,
+  content
+) {
+  const insertObj = {
+    postId,
+    userId,
+    parentCommentId: parentCommentId || null, //Whether it is a reply or not
+    createdAt: new Date().toISOString(),
+    content,
+  };
+
+  const { data, error } = await supabase
+    .from("Comment")
+    .insert(insertObj)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error inserting comment:", error);
+    throw new Error("Could not insert you comment");
+  }
+
+  //fetching required data
+  const { id } = data;
+
+  const { data: fullCommentData, error: fullCommentError } = await supabase.rpc(
+    "get_comment_details",
+    {
+      input_comment_id: id,
+      input_user_id: userId,
+    }
+  );
+
+  if (fullCommentError) {
+    console.error("Error inserting comment:", fullCommentError);
+    throw new Error("Could not insert you comment");
+  }
+
+  // console.log("🎁 data-service.js: Got fullCommentData as : ", fullCommentData);
+  return fullCommentData;
+}
+
+export async function userInteractionWithComment(userId, commentId) {
+  const { data, error } = await supabase
+    .from("CommentInteraction")
+    .select("vote")
+    .eq("commentId", commentId)
+    .eq("userId", userId);
+
+  if (error) {
+    console.error("Error getting user vote:", error);
+    return 0;
+  }
+
+  if (!data || data.length === 0) {
+    return 0; // user has no interaction
+  }
+
+  return data[0].vote; // return 1 or -1
+}
+
+export async function upsertCommentInteraction(
+  userId,
+  commentId,
+  columnName,
+  value
+) {
+  // Prevent modifying disallowed columns
+  const allowedColumns = ["vote"];
+
+  if (!allowedColumns.includes(columnName)) {
+    throw new Error("Invalid column name");
+  }
+
+  const updateObj = {
+    userId,
+    commentId,
+    lastUpdatedAt: new Date().toISOString(),
+    [columnName]: value, // dynamic column assignment
+  };
+
+  const { data, error } = await supabase
+    .from("CommentInteraction")
+    .upsert(updateObj, {
+      onConflict: "commentId,userId",
+    })
+    .select();
+
+  if (error) {
+    console.error("Error upserting interaction:", error);
+    throw new Error("Could not upsert comment interaction");
+  }
+
+  return data;
 }
