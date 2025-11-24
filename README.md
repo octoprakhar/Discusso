@@ -147,10 +147,11 @@
 
 ## Database Design Overview
 
-The database is divided into two categories:
+The database is divided into three categories:
 
 - **Pure Database Tables** → store main entities (users, posts, comments, etc.)
 - **Interaction Tables** → store user interactions (votes, joins, etc.)
+- **Preference Tables** -> store user specific actions (saving post, blocking user(future), hiding posts(future))
 
 Below is the high-level schema visualization:
 
@@ -263,4 +264,22 @@ isMember: Boolean, //Default True
     userId: Int, //(FK to user table)
     vote: Int //Either 1 for upvote and -1 for downvote
 }
+```
+
+### Preference database entities overview:
+
+2. **PostPreferences**: This table stores user-specific preferences on posts. Only the user can see these settings.
+
+```
+{
+    userId: Int, // FK and Primary Key
+    postId: Int, // FK and Primary Key
+
+    isSaved: Boolean, // default false
+    isHidden: Boolean, // future feature
+    isReported: Boolean, // future feature
+
+    createdAt: DateTime
+}
+
 ```

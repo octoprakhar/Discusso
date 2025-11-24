@@ -1,17 +1,17 @@
 "use server";
 
 import bcrypt from "bcrypt";
+import { cookies } from "next/headers";
+import { transformPostData } from "../utils/postUtils";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } from "../utils/tokenUtils";
+import { getUserId } from "../utils/userUtils";
 import {
   findUserByEmail,
   findUserIdbyEmail,
-  getAllPosts,
-  getCommunityById,
-  getNumberOfMemberInCommunity,
   getPostDataWithCommentsForSignedInUser,
   getPostsWithFullData,
   getPostWithFullData,
@@ -20,7 +20,6 @@ import {
   insertPost,
   saveOrUpdateRefreshToken,
   toggleCommunityJoin,
-  updatePostInteraction,
   updateUserLocation,
   uploadPostImages,
   upsertCommentInteraction,
@@ -28,10 +27,6 @@ import {
   userInteractionWithComment,
   userInteractionWithPost,
 } from "./data-service";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getUserId } from "../utils/userUtils";
-import { transformPostData } from "../utils/postUtils";
 
 export async function registerNewUser(formData) {
   //Validate the data points
@@ -479,18 +474,20 @@ export async function getSinglePostDataWithComments(formData) {
   try {
     const cookieStore = await cookies();
     const existingRefresh = cookieStore.get("refresh_token");
-    const payload = await verifyRefreshToken(existingRefresh.value);
+    const payload = existingRefresh
+      ? await verifyRefreshToken(existingRefresh.value)
+      : null;
 
-    const email = payload.userId || payload.email;
+    const email = payload ? payload.userId || payload.email : null;
 
-    const userId = await findUserIdbyEmail(email);
+    const userId = email ? await findUserIdbyEmail(email) : null;
 
     const rawData = await getPostDataWithCommentsForSignedInUser(
       userId,
       postId
     );
 
-    // console.log(`Got raw data as : \n`, rawData);
+    console.log(`Got raw data as : \n`, rawData);
 
     //Transforming the data
     const finalData = transformPostData(rawData);
