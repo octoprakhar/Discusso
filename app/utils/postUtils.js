@@ -32,6 +32,7 @@ export function transformPostData(raw) {
     noOfUpvotes: post.noofupvotes,
     hasUserAlreadyUpvoted: post.hasuserupvotedpost,
     hasUserAlreadyDownvoted: post.hasuserdownvotedpost,
+    hasUserSavedPost: post.hasusersavedpost,
 
     createdAt: new Date(post.createdAt).toISOString(),
 

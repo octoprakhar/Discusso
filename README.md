@@ -279,7 +279,7 @@ isMember: Boolean, //Default True
     isHidden: Boolean, // future feature
     isReported: Boolean, // future feature
 
-    createdAt: DateTime
+    lastUpdatedAt: DateTime
 }
 
 ```

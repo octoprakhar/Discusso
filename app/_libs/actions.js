@@ -12,6 +12,9 @@ import { getUserId } from "../utils/userUtils";
 import {
   findUserByEmail,
   findUserIdbyEmail,
+  getAllSavedPostId,
+  getAllSavedPosts,
+  getAPostPreference,
   getPostDataWithCommentsForSignedInUser,
   getPostsWithFullData,
   getPostWithFullData,
@@ -24,6 +27,7 @@ import {
   uploadPostImages,
   upsertCommentInteraction,
   upsertPostInteraction,
+  upsertPostPreferences,
   userInteractionWithComment,
   userInteractionWithPost,
 } from "./data-service";
@@ -664,5 +668,105 @@ export async function toggleCommentVote(formData) {
   } catch (err) {
     console.error(err);
     return { error: "Something went wrong." };
+  }
+}
+
+export async function togglePostPreferences(formData) {
+  //I need two things postId, and preference (column name)  so that I could toggle it
+  const postId = formData.get("postId");
+  const preference = formData.get("preference");
+
+  // Check whether user is logged in or not
+  if (!postId || !preference) {
+    return { error: "Incomplete Data... We can't complete this operation" };
+  }
+
+  //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
+  const cookieStore = await cookies();
+  const existingAccess = cookieStore.get("access_token");
+  const existingRefresh = cookieStore.get("refresh_token");
+
+  if (!existingAccess || !existingRefresh) {
+    return { error: "You need to sign in before performing this action" };
+  }
+
+  try {
+    // check user's existing preference with post
+    const payload = await verifyRefreshToken(existingRefresh.value);
+    const email = payload.userId || payload.email;
+
+    const userId = await findUserIdbyEmail(email);
+
+    const prevDecision = await getAPostPreference(userId, postId, preference);
+
+    if (prevDecision === true) {
+      await upsertPostPreferences(userId, postId, preference, false);
+    } else {
+      await upsertPostPreferences(userId, postId, preference, true);
+    }
+    return {
+      success:
+        prevDecision === true
+          ? "Post removed from saved posts."
+          : "Post added in saved posts.",
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: "Something went wrong" };
+  }
+}
+
+export async function getSavedPostsAction() {
+  try {
+    const userId = await getUserId();
+
+    //Get all postids that are saved by this user
+    const postIds = await getAllSavedPostId(userId);
+
+    //Map the post ids to get only the ids in an array
+    const postIdsArray = postIds.map(({ postId }) => postId);
+
+    const rawPosts = await getAllSavedPosts(userId, postIdsArray);
+
+    const enrichedPosts = rawPosts.map((p) => ({
+      id: userId ? p.id : p.id,
+      title: p.title,
+      description: p.description,
+      media: p.media,
+      links: p.links,
+      createdAt: p.createdat ?? p.createdAt,
+      userId: p.userid ?? p.userId,
+
+      noOfUpvotes: p.noofupvotes ?? p.noOfUpvotes,
+      noOfDownvotes: p.noofdownvotes ?? p.noOfDownvotes,
+      noOfComments: p.noofcomments ?? p.noOfComments,
+
+      hasUserAlreadyUpvoted: p.hasuseralreadyupvoted ?? false,
+      hasUserAlreadyDownvoted: p.hasuseralreadydownvoted ?? false,
+
+      communityId: p.communityid ?? p.communityId,
+    }));
+
+    const communityDataList = rawPosts.map((p) => ({
+      communityId: p.communityid ?? p.communityId,
+      communityName: p.communityname ?? p.communityName,
+      logo: p.communitylogo ?? p.communityLogo,
+      description: p.communitydescription ?? p.communityDescription,
+      totalCommunityMembers: p.noofcommunitymembers ?? p.totalCommunityMembers,
+    }));
+
+    console.log("🧐 Action.js: Got all raw post as : ", rawPosts);
+    console.log("🧐 Action.js: Got all saved posts as  ", enrichedPosts);
+    console.log("🧐 Action.js: Got all communities as: ", communityDataList);
+    return {
+      success: "Sucess",
+      savedPosts: { enrichedPosts, communityDataList },
+    };
+  } catch (err) {
+    console.error(
+      "💣 ServerAction.js: error occured while fetching saved posts.",
+      err
+    );
+    return { error: "Error while fetching saved post." };
   }
 }

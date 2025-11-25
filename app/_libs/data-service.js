@@ -466,3 +466,87 @@ export async function upsertCommentInteraction(
 
   return data;
 }
+
+export async function upsertPostPreferences(userId, postId, columnName, value) {
+  // Prevent modifying disallowed columns
+  const allowedColumns = ["isSaved"];
+
+  if (!allowedColumns.includes(columnName)) {
+    throw new Error("Invalid column name");
+  }
+
+  const updateObj = {
+    userId,
+    postId,
+    lastUpdatedAt: new Date().toISOString(),
+    [columnName]: value, // dynamic column assignment
+  };
+
+  const { data, error } = await supabase
+    .from("PostPreferences")
+    .upsert(updateObj, {
+      onConflict: "postId,userId",
+    })
+    .select();
+
+  if (error) {
+    console.error("Error upserting preference:", error);
+    throw new Error("Could not upsert post preference");
+  }
+
+  return data;
+}
+
+export async function getAPostPreference(userId, postId, columnName) {
+  // Prevent modifying disallowed columns
+  const allowedColumns = ["isSaved"];
+
+  if (!allowedColumns.includes(columnName)) {
+    throw new Error("Invalid column name");
+  }
+
+  const { data, error } = await supabase
+    .from("PostPreferences")
+    .select(columnName)
+    .eq("postId", postId)
+    .eq("userId", userId);
+
+  if (error) {
+    console.error("Error getting user preference:", error);
+    return 0;
+  }
+
+  if (!data || data.length === 0) {
+    return false; // user has no preference data
+  }
+
+  return data[0][columnName]; // return true or false
+}
+
+export async function getAllSavedPostId(userId) {
+  const { data: postIds, error } = await supabase
+    .from("PostPreferences")
+    .select("postId")
+    .eq("userId", userId);
+
+  if (error) {
+    console.error("Error getting saved posts id:", error);
+    throw new Error("Could not get saved post");
+  }
+
+  return postIds;
+}
+
+export async function getAllSavedPosts(userId, postIds) {
+  const { data, error } = await supabase.rpc(
+    "get_multiple_posts_with_metadata_for_post_ids",
+    { pids: postIds, uid: userId }
+  );
+
+  if (error) {
+    console.error("Error getting saved post:", error);
+    throw new Error("Could not get saved post");
+  }
+
+  return data;
+}

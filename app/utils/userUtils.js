@@ -15,6 +15,7 @@ export async function getUserId() {
     }
   } catch (err) {
     console.error("Error reading user token:", err);
+    throw new Error(err);
   }
 
   return userId;

@@ -31,7 +31,7 @@ import { formatDistanceToNow } from "date-fns";
 import SmallCommunityInfo from "./SmallCommunityInfo";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { togglePostVote } from "../_libs/actions";
+import { togglePostPreferences, togglePostVote } from "../_libs/actions";
 /*But each post has something common that 
 from which community it is, time(how much time ago), number of upvotes, number of downvote, community image,
 I think I will ask these things in the parent component only
@@ -56,7 +56,7 @@ function Post({
   showUserNameAsMainName = false,
   creatorName = "",
   toShowBackButton = false,
-  toShowSavePostButton = true,
+  toshowBookMarkButton = true,
 }) {
   //Get community using community id from post
   // const community = {
@@ -66,6 +66,7 @@ function Post({
   const router = useRouter();
   const [updatedPost, setUpdatedPost] = useState(post);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPostSaved, setIsPostSaved] = useState(post.hasUserSavedPost);
 
   const handlePostVote = async (vote) => {
     if (isProcessing) return; // prevent spamming click
@@ -206,39 +207,64 @@ function Post({
               </span>
             )}
           </div>
-          {toShowSavePostButton ? (
-            <BookmarkSquareIcon
-              className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                //Pass userId and postId to server through action then navigate to saved page after saving the post
-
-                const success = true;
-                //Show the toast if success show success toast
-                success
-                  ? toast.success("Post Saved Successfully")
-                  : toast.error("Error while saving the post");
-              }}
-            />
-          ) : (
-            <XCircleIcon
-              className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                //Pass userId and postId to server through action then navigate to saved page after saving the post
-
-                const success = true;
-                //Show the toast if success show success toast
-                success
-                  ? toast.success("Post removed from saved list Successfully")
-                  : toast.error(
-                      "Error while removing the post from saved list"
+          {toshowBookMarkButton === true &&
+            (isPostSaved === false ? (
+              <BookmarkSquareIcon
+                className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  //Pass userId and postId to server through action then navigate to saved page after saving the post
+                  try {
+                    const formData = new FormData();
+                    formData.append("postId", updatedPost.id);
+                    formData.append("preference", "isSaved");
+                    const res = await togglePostPreferences(formData);
+                    if (res.error) {
+                      toast.error(res.error);
+                    }
+                    setIsPostSaved(true);
+                    toast.success(res.success);
+                  } catch (err) {
+                    console.log(
+                      "💣 Post.js: Error occured in saving/removing posts. \n",
+                      err
                     );
-              }}
-            />
-          )}
+                    toast.error(
+                      "Something went wrong. Please try again later."
+                    );
+                  }
+                }}
+              />
+            ) : (
+              <XCircleIcon
+                className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  //Pass userId and postId to server through action then navigate to saved page after saving the post
+                  try {
+                    const formData = new FormData();
+                    formData.append("postId", updatedPost.id);
+                    formData.append("preference", "isSaved");
+                    const res = await togglePostPreferences(formData);
+                    if (res.error) {
+                      toast.error(res.error);
+                    }
+                    setIsPostSaved(false);
+                    toast.success(res.success);
+                  } catch (err) {
+                    console.log(
+                      "💣 Post.js: Error occured in saving/removing posts. \n",
+                      err
+                    );
+                    toast.error(
+                      "Something went wrong. Please try again later."
+                    );
+                  }
+                }}
+              />
+            ))}
         </header>
 
         <main>

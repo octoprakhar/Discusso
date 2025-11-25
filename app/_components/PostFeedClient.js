@@ -19,9 +19,9 @@ export default function PostFeedClient() {
       },
     });
 
-  console.log(
-    `PostFeedClient.js: Got data as \n1. data => ${data}\n2. fetchNextPage => ${fetchNextPage}\n3. hasNextPage => ${hasNextPage}\n4. isFetchingNextPage => ${isFetchingNextPage}\n5. isLoading => ${isLoading}`
-  );
+  // console.log(
+  //   `PostFeedClient.js: Got data as \n1. data => ${data}\n2. fetchNextPage => ${fetchNextPage}\n3. hasNextPage => ${hasNextPage}\n4. isFetchingNextPage => ${isFetchingNextPage}\n5. isLoading => ${isLoading}`
+  // );
 
   if (isLoading) {
     return (
@@ -35,7 +35,12 @@ export default function PostFeedClient() {
     <>
       {data?.pages.map((page) =>
         page.enrichedPosts.map((post, i) => (
-          <Post key={post.id} post={post} community={page.communityDataList[i]}>
+          <Post
+            key={post.id}
+            post={post}
+            community={page.communityDataList[i]}
+            toshowBookMarkButton={false}
+          >
             {post.description && <PostDescription />}
             {post.media?.images && <PostImages />}
             {post.links && <PostLink />}
