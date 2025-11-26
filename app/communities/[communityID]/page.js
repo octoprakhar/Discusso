@@ -1,11 +1,14 @@
 import CommunityAboutSection from "@/app/_components/CommunityAboutSection";
 import CommunityHeaderSection from "@/app/_components/CommunityHeaderSection";
 import { Post, PostDescription, PostImages } from "@/app/_components/Posts";
-import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { BellIcon } from "@heroicons/react/24/solid";
-import Image from "next/image";
+import {
+  getCommunityById,
+  getPostsByCommunityId,
+} from "@/app/_libs/data-service";
+import { formatToReadableDate } from "@/app/utils/dateTimeUtils";
+import { getUserId } from "@/app/utils/userUtils";
 
-export default function Page() {
+export default async function Page({ params }) {
   /*
     In this page I need:
     1. Community name
@@ -22,16 +25,43 @@ export default function Page() {
     We will use the same post component, just with a slight difference, here we don't use the community name as the heading, instead user name.
     */
 
-  const data = {
-    communityName: "r/React",
-    communityLogo: "/bg-1.jpg",
-    hasUserJoined: true, //Somehow just calculate it
-    communityTitle: "React – A JavaScript library for building user interfaces",
-    communityDescription:
-      "The (unofficial) React.js subreddit for all things React!",
-    createdAt: "Created Sep 5, 2011", //Must make it in this format
-    noOfMembers: 122,
+  const { communityID: communityId } = await params;
+
+  console.log(`CommunityPage: Community id is : ${communityId}`);
+
+  let data;
+  let postData;
+  try {
+    data = await getCommunityById(communityId);
+    const userId = await getUserId();
+    postData = await getPostsByCommunityId(communityId, userId || null);
+    // console.log(data);
+    console.log(postData);
+  } catch (err) {
+    console.error(err);
+  }
+
+  const modifiedData = {
+    id: data.id,
+    communityName: data.name,
+    communityLogo: data.logo,
+    hasUserJoined: true, //I will modify it,
+    communityTitle: data.title,
+    communityDescription: data.description,
+    createdAt: data.createdAt,
+    noOfMembers: 122, //Need to get this data too
   };
+
+  // const data = {
+  //   communityName: "r/React",
+  //   communityLogo: "/bg-1.jpg",
+  //   hasUserJoined: true, //Somehow just calculate it
+  //   communityTitle: "React – A JavaScript library for building user interfaces",
+  //   communityDescription:
+  //     "The (unofficial) React.js subreddit for all things React!",
+  //   createdAt: "Created Sep 5, 2011", //Must make it in this format
+  //   noOfMembers: 122,
+  // };
 
   //Dummy data
 
@@ -173,15 +203,15 @@ export default function Page() {
   return (
     <div className="space-y-2">
       <CommunityHeaderSection
-        communityLogo={data.communityLogo}
-        communityName={data.communityName}
-        hasUserJoined={data.hasUserJoined}
+        communityLogo={modifiedData.communityLogo}
+        communityName={modifiedData.communityName}
+        hasUserJoined={modifiedData.hasUserJoined}
       />
 
       <CommunityAboutSection
-        communityTitle={data.communityTitle}
-        communityDescription={data.communityDescription}
-        createdAt={data.createdAt}
+        communityTitle={modifiedData.communityTitle}
+        communityDescription={modifiedData.communityDescription}
+        createdAt={formatToReadableDate(modifiedData.createdAt)}
       />
 
       {/* Decide which children to use depending on the available post */}

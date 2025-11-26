@@ -364,6 +364,7 @@ export async function getAllPostsAction(formData) {
 
       hasUserAlreadyUpvoted: userId ? p.hasuseralreadyupvoted : false,
       hasUserAlreadyDownvoted: userId ? p.hasuseralreadydownvoted : false,
+      hasUserSavedPost: userId ? p.hasusersavedpost : false,
 
       communityId: userId ? p.community_id : p.communityId, // still needed inside enrichedPosts
     }));
@@ -453,7 +454,7 @@ export async function togglePostVote(formData) {
     //Then refetch the post data again for the screen/ (If possible only fetch that post's updated data, to reduce lagging)
     const updatedPost = await getPostWithFullData(postId, userId);
 
-    console.log(`Updated Posts : ${updatedPost}`);
+    // console.log(`Updated Posts : ${updatedPost}`);
 
     return {
       success: "Post voted successfully",
@@ -491,7 +492,7 @@ export async function getSinglePostDataWithComments(formData) {
       postId
     );
 
-    console.log(`Got raw data as : \n`, rawData);
+    // console.log(`Got raw data as : \n`, rawData);
 
     //Transforming the data
     const finalData = transformPostData(rawData);
@@ -547,7 +548,7 @@ export async function toggleCommunityJoinAction(formData) {
       hasUserAlreadyJoin
     );
 
-    console.log(`🧐 ServerAction: got data as \n`, data);
+    // console.log(`🧐 ServerAction: got data as \n`, data);
     // console.log("Successfully changed!!");
     return { success: true, data: data };
   } catch (err) {
@@ -564,9 +565,9 @@ export async function insertNewCommentAction(formData) {
     return { success: false, error: "Please provide the valid data." };
   }
 
-  console.log(
-    `🧐 Action.js: Got data as: \ncontent: ${content}\npostId: ${postId}\nparentCommentId: ${parentCommentId}`
-  );
+  // console.log(
+  //   `🧐 Action.js: Got data as: \ncontent: ${content}\npostId: ${postId}\nparentCommentId: ${parentCommentId}`
+  // );
 
   try {
     //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
@@ -581,7 +582,7 @@ export async function insertNewCommentAction(formData) {
     const payload = await verifyRefreshToken(existingRefresh.value);
     const email = payload.userId || payload.email;
     const userId = await findUserIdbyEmail(email);
-    console.log(`🧐 Action.js: Got userId as: ${userId}`);
+    // console.log(`🧐 Action.js: Got userId as: ${userId}`);
     if (!userId) {
       return {
         success: false,
@@ -681,6 +682,8 @@ export async function togglePostPreferences(formData) {
     return { error: "Incomplete Data... We can't complete this operation" };
   }
 
+  // console.log(`🧐Action.js: Got postId as: ${postId}`);
+
   //Check whether any session is going on or not, if no session is going on, just redirect the user to signIn
   const cookieStore = await cookies();
   const existingAccess = cookieStore.get("access_token");
@@ -755,9 +758,9 @@ export async function getSavedPostsAction() {
       totalCommunityMembers: p.noofcommunitymembers ?? p.totalCommunityMembers,
     }));
 
-    console.log("🧐 Action.js: Got all raw post as : ", rawPosts);
-    console.log("🧐 Action.js: Got all saved posts as  ", enrichedPosts);
-    console.log("🧐 Action.js: Got all communities as: ", communityDataList);
+    // console.log("🧐 Action.js: Got all raw post as : ", rawPosts);
+    // console.log("🧐 Action.js: Got all saved posts as  ", enrichedPosts);
+    // console.log("🧐 Action.js: Got all communities as: ", communityDataList);
     return {
       success: "Sucess",
       savedPosts: { enrichedPosts, communityDataList },

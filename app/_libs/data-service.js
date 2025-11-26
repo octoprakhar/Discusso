@@ -527,7 +527,8 @@ export async function getAllSavedPostId(userId) {
   const { data: postIds, error } = await supabase
     .from("PostPreferences")
     .select("postId")
-    .eq("userId", userId);
+    .eq("userId", userId)
+    .eq("isSaved", true);
 
   if (error) {
     console.error("Error getting saved posts id:", error);
@@ -546,6 +547,20 @@ export async function getAllSavedPosts(userId, postIds) {
   if (error) {
     console.error("Error getting saved post:", error);
     throw new Error("Could not get saved post");
+  }
+
+  return data;
+}
+
+export async function getPostsByCommunityId(communityId, userId) {
+  const { data, error } = await supabase.rpc("get_posts_by_community", {
+    in_input_community_id: communityId,
+    in_user_id: userId,
+  });
+
+  if (error) {
+    console.error("Error getting post of community:", error);
+    throw new Error("Could not get posts of this community");
   }
 
   return data;

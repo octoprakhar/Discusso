@@ -28,7 +28,7 @@ function PostCommentButtons({
 
   const { postId, onNewComment: onNewComments } = useComment();
 
-  console.log(`🧐 PostCommentButtons.js: Got post id as: ${postId}`);
+  // console.log(`🧐 PostCommentButtons.js: Got post id as: ${postId}`);
 
   const handleSubmit = async () => {
     //Handle checking using action and submitting

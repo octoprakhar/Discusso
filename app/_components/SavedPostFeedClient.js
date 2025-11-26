@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import SmallSpinner from "./SmallSpinner";
 import { Post, PostDescription, PostImages, PostLink } from "./Posts";
+import toast from "react-hot-toast";
 
 async function fetchSavedPosts() {
   const res = await fetch("/api/saved-posts", { method: "POST" });
@@ -23,9 +24,14 @@ function SavedPostFeedClient() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // console.log("💧 SavedPostFeedClient.js: Got posts data as ,\n", posts);
+
   if (isLoading) return <SmallSpinner />;
   if (error) return <p>Failed to load saved posts</p>;
-  if (!posts || !posts.enrichedPosts) return <p>No saved posts</p>;
+  if (!posts || posts.enrichedPosts.length === 0)
+    return (
+      <p className="text-center text-4xl font-bold my-10">No saved posts</p>
+    );
 
   // build a map from communityId -> community object for O(1) lookup
   const communityById = (posts.communityDataList || []).reduce((acc, c) => {
