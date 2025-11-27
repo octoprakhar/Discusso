@@ -1,11 +1,7 @@
-import Comments from "@/app/_components/Comments";
 import CommentsClient from "@/app/_components/CommentsClient";
-import CommentSection from "@/app/_components/CommentSection";
 import PostCommunitySection from "@/app/_components/PostCommunitySection";
 import { Post, PostDescription, PostImages } from "@/app/_components/Posts";
 import { getSinglePostDataWithComments } from "@/app/_libs/actions";
-import { formatToReadableDate } from "@/app/utils/dateTimeUtils";
-import { DocumentPlusIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 
 async function page({ params }) {
   const param = await params;

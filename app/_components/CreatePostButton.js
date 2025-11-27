@@ -1,14 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Header from "./Header";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { useSetQueryParams } from "../_hooks/useSetQueryParams";
 
 export default function CreatePostButton() {
-  const router = useRouter();
+  const { setQueryParam } = useSetQueryParams("/user/create-post");
 
   const handleAddPostClick = () => {
-    router.push("/user/create-post");
+    const communityId = "1234";
+    setQueryParam("communityId", communityId);
   };
 
   return (

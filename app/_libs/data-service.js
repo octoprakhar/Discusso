@@ -166,12 +166,13 @@ export async function insertPost(post) {
   return data;
 }
 
-export async function getCommunityById(id) {
-  let { data, error } = await supabase
-    .from("Community")
-    .select("*")
-    .eq("id", id)
-    .single();
+export async function getCommunityById(communityId, userId) {
+  const { data, error } = await supabase.rpc("get_community_details", {
+    community_id: communityId,
+    uid: userId,
+  });
+
+  // console.log("🎉 Data-service.js: Got data as", data);
 
   if (!data) {
     return null; // No Community found

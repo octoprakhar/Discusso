@@ -2,11 +2,13 @@ import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { BellIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import CreatePostButton from "./CreatePostButton";
+import CommunityJoinButton from "./CommunityJoinButton";
 
 function CommunityHeaderSection({
   communityName,
   communityLogo,
   hasUserJoined,
+  communityId,
 }) {
   return (
     <div className="w-[95%] mx-auto min-h-32 rounded-xl py-3">
@@ -33,9 +35,10 @@ function CommunityHeaderSection({
           <BellIcon className="h-6 w-6 md:h-10 md:w-10" />
         </div>
         <div className="border-[1px] rounded-full p-2 cursor-pointer hover:bg-slate-200">
-          <span className="h-6 w-6 md:h-10 md:w-10 md:text-xl">
-            {hasUserJoined ? "Joined" : "Join"}
-          </span>
+          <CommunityJoinButton
+            hasUserJoined={hasUserJoined}
+            communityId={communityId}
+          />
         </div>
         <div className="border-[1px] rounded-full p-2 cursor-pointer hover:bg-slate-200">
           <EllipsisHorizontalIcon className="h-6 w-6 md:h-10 md:w-10" />

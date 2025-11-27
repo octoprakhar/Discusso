@@ -140,6 +140,21 @@ function Post({
     setIsProcessing(false);
   };
 
+  const handleShare = async (e) => {
+    // console.log("Share clicked!");
+
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/posts/${updatedPost.id}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link Copied!");
+    } catch (err) {
+      toast.error("Failed to copy link");
+    }
+  };
+
   // console.log("Got posts as ", updatedPost);
   //Each post has, created_time, upvote count, downvote count, comments, share button,title, hasUserUpvoted/downvoted/none,number of comments
   return (
@@ -318,6 +333,7 @@ function Post({
             title={updatedPost.noOfComments}
           />
           <DescriptiveButton
+            onButtonClicked={async (e) => await handleShare(e)}
             icon={<ShareOutline className="w-4 h-4" />}
             title="Share"
           />
