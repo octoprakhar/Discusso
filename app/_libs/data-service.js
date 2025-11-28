@@ -566,3 +566,16 @@ export async function getPostsByCommunityId(communityId, userId) {
 
   return data;
 }
+
+export async function getCommunitiesByUserId(userId) {
+  const { data, error } = await supabase.rpc("get_user_communities", {
+    uid: userId,
+  });
+
+  if (error) {
+    console.error("Error getting community by userId:", error);
+    throw new Error("Could not get community of this user");
+  }
+
+  return data;
+}

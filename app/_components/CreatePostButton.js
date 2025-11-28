@@ -3,12 +3,12 @@
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { useSetQueryParams } from "../_hooks/useSetQueryParams";
 
-export default function CreatePostButton() {
+export default function CreatePostButton({ communityId }) {
   const { setQueryParam } = useSetQueryParams("/user/create-post");
 
   const handleAddPostClick = () => {
-    const communityId = "1234";
-    setQueryParam("communityId", communityId);
+    // const communityId = "1234";
+    setQueryParam("com", communityId);
   };
 
   return (

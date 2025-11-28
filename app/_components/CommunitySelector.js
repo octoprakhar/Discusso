@@ -13,15 +13,20 @@ function CommunitySelector({
   communityList,
   draftedCommunity = "",
   draftedCommunityId = -1,
+  communityId = "",
 }) {
+  const isUserJoinedThatCommunity = communityList.find(
+    (com) => com.communityId === communityId
+  );
   const [filteredCommunity, setFilteredCommunity] = useState(communityList);
   const [toShowInput, setToShowInput] = useState(false);
   const containerRef = useRef(null); // ref for outside click detection
   const [selectedCommunityId, setSelectedCommunityId] = useState(
     draftedCommunityId > 0 ? draftedCommunityId : null
   );
-  const [inputCommunityName, setInputCommunityName] =
-    useState(draftedCommunity);
+  const [inputCommunityName, setInputCommunityName] = useState(
+    draftedCommunity || isUserJoinedThatCommunity?.name || ""
+  );
 
   const { setQueryParam } = useSetQueryParams();
 
@@ -91,6 +96,14 @@ function CommunitySelector({
       setFilteredCommunity(communityList);
     }
   }, [inputCommunityName, communityList]);
+
+  useEffect(() => {
+    if (!isUserJoinedThatCommunity) {
+      setSelectedCommunityId(null);
+    } else {
+      setSelectedCommunityId(isUserJoinedThatCommunity.communityId);
+    }
+  }, [communityId, communityList]);
 
   return (
     <div ref={containerRef}>

@@ -30,7 +30,7 @@ function CommunityHeaderSection({
       </div>
       {/* Action buttons */}
       <div className="px-2 py-1 flex gap-2 justify-end">
-        <CreatePostButton />
+        <CreatePostButton communityId={communityId} />
         <div className="border-[1px] rounded-full p-2 cursor-pointer hover:bg-slate-200">
           <BellIcon className="h-6 w-6 md:h-10 md:w-10" />
         </div>
