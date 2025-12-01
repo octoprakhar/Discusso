@@ -5,6 +5,7 @@ function DescriptiveButton({
   title,
   isAlreadyClicked = false,
   onButtonClicked,
+  disable = false,
 }) {
   const handleClick = () => {
     console.log("Cliecked");
@@ -30,6 +31,7 @@ function DescriptiveButton({
 
   return (
     <button
+      disabled={disable}
       className={`flex items-center ${
         isAlreadyClicked
           ? "bg-slate-700 text-slate-100"

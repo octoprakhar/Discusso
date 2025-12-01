@@ -58,6 +58,7 @@ function Post({
   showUserNameAsMainName = false,
   creatorName = "",
   toShowBackButton = false,
+  toShowBookMarkButton = false,
 }) {
   //Get community using community id from post
   // const community = {
@@ -120,7 +121,7 @@ function Post({
 
     try {
       const formData = new FormData();
-      formData.append("postId", updatedPost.id);
+      formData.append("postId", updatedPost.id || updatedPost.postId);
       formData.append("vote", vote);
 
       const res = await togglePostVote(formData);
@@ -145,7 +146,9 @@ function Post({
 
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/posts/${updatedPost.id}`;
+    const url = `${window.location.origin}/posts/${
+      updatedPost.id || updatedPost.postId
+    }`;
 
     try {
       await navigator.clipboard.writeText(url);
@@ -163,7 +166,7 @@ function Post({
       <div
         className="overflow-x-hidden w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col gap-1 cursor-pointer hover:bg-slate-200"
         onClick={() => {
-          router.push(`/posts/${updatedPost.id}`);
+          router.push(`/posts/${updatedPost.id || updatedPost.postId}`);
         }}
       >
         {/* Basic header */}
@@ -225,9 +228,47 @@ function Post({
               </span>
             )}
           </div>
-          {isPostSaved === false ? (
-            isLoading === false ? (
-              <BookmarkSquareIcon
+          {toShowBookMarkButton &&
+            (isPostSaved === false ? (
+              isLoading === false ? (
+                <BookmarkSquareIcon
+                  className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    //Pass userId and postId to server through action then navigate to saved page after saving the post
+                    try {
+                      setIsLoading(true);
+                      const formData = new FormData();
+                      formData.append("postId", updatedPost.id);
+                      formData.append("preference", "isSaved");
+                      const res = await togglePostPreferences(formData);
+                      if (res.error) {
+                        toast.error(res.error);
+                      } else {
+                        setIsPostSaved(true);
+                        queryClient.invalidateQueries(["saved-posts"]);
+
+                        toast.success(res.success);
+                      }
+                    } catch (err) {
+                      console.log(
+                        "💣 Post.js: Error occured in saving/removing posts. \n",
+                        err
+                      );
+                      toast.error(
+                        "Something went wrong. Please try again later."
+                      );
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                />
+              ) : (
+                <SmallSpinner />
+              )
+            ) : isLoading === false ? (
+              <XCircleIcon
                 className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
                 onClick={async (e) => {
                   e.preventDefault();
@@ -242,7 +283,7 @@ function Post({
                     if (res.error) {
                       toast.error(res.error);
                     } else {
-                      setIsPostSaved(true);
+                      setIsPostSaved(false);
                       queryClient.invalidateQueries(["saved-posts"]);
 
                       toast.success(res.success);
@@ -262,42 +303,7 @@ function Post({
               />
             ) : (
               <SmallSpinner />
-            )
-          ) : isLoading === false ? (
-            <XCircleIcon
-              className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
-              onClick={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                //Pass userId and postId to server through action then navigate to saved page after saving the post
-                try {
-                  setIsLoading(true);
-                  const formData = new FormData();
-                  formData.append("postId", updatedPost.id);
-                  formData.append("preference", "isSaved");
-                  const res = await togglePostPreferences(formData);
-                  if (res.error) {
-                    toast.error(res.error);
-                  } else {
-                    setIsPostSaved(false);
-                    queryClient.invalidateQueries(["saved-posts"]);
-
-                    toast.success(res.success);
-                  }
-                } catch (err) {
-                  console.log(
-                    "💣 Post.js: Error occured in saving/removing posts. \n",
-                    err
-                  );
-                  toast.error("Something went wrong. Please try again later.");
-                } finally {
-                  setIsLoading(false);
-                }
-              }}
-            />
-          ) : (
-            <SmallSpinner />
-          )}
+            ))}
         </header>
 
         <main>

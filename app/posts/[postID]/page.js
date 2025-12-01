@@ -128,6 +128,7 @@ const post = {
           creatorName={post?.creatorName || "CupMania"}
           toShowBackButton={true}
           community={community}
+          toShowBookMarkButton={true}
         >
           <PostImages />
           <PostDescription />

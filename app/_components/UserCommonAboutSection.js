@@ -2,8 +2,9 @@
 
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import { formatToTimeAgo } from "../utils/dateTimeUtils";
 
-function UserCommonAboutSection() {
+function UserCommonAboutSection({ user }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
@@ -36,19 +37,19 @@ function UserCommonAboutSection() {
       >
         {/* Always render content for smooth animation */}
         <div>
-          <p className="font-bold">89</p>
+          <p className="font-bold">{user.karma}</p>
           <p>karma</p>
         </div>
         <div>
-          <p className="font-bold">68</p>
+          <p className="font-bold">{user.noOfContributions}</p>
           <p>Contribution</p>
         </div>
         <div>
-          <p className="font-bold">3w</p>
-          <p>Reddit Age</p>
+          <p className="font-bold">{formatToTimeAgo(user.createdAt)}</p>
+          <p>Discusso Age</p>
         </div>
         <div>
-          <p className="font-bold">5</p>
+          <p className="font-bold">{user.noOfCommunitiesUserJoined}</p>
           <p>Active in &gt;</p>
         </div>
       </div>

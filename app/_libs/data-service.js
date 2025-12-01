@@ -579,3 +579,20 @@ export async function getCommunitiesByUserId(userId) {
 
   return data;
 }
+
+export async function getUserProfileDetailByUserId(
+  targetUserId,
+  signedInUserId
+) {
+  const { data, error } = await supabase.rpc("get_user_profile_details", {
+    target_user_id: targetUserId,
+    signed_in_user_id: signedInUserId,
+  });
+
+  if (error) {
+    console.error("Error getting uder by userId:", error);
+    throw new Error("Could not get details of this user");
+  }
+
+  return data;
+}

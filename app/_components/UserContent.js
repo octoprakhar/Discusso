@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Post, PostDescription, PostImages } from "./Posts";
 import UserCommentActivity from "./UserCommentActivity";
 
-function UserContent({ posts, comments }) {
+function UserContent({ posts, comments, user }) {
   const searchParams = useSearchParams();
   const feeds = searchParams.get("feeds");
   const router = useRouter();
@@ -36,7 +36,11 @@ function UserContent({ posts, comments }) {
     return comments.length > 0 ? (
       <div>
         {comments.map((comment, idx) => (
-          <UserCommentActivity key={`comment-${idx}`} comment={comment} />
+          <UserCommentActivity
+            key={comment.commentId}
+            comment={comment}
+            userName={user.userName}
+          />
         ))}
       </div>
     ) : (
