@@ -178,7 +178,11 @@ export default async function Page() {
         <div className="relative">
           <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full">
             <Image
-              src={user.userIcon}
+              src={
+                user.userIcon === "" || !user.userIcon
+                  ? "/discusso_logo.png"
+                  : user.userIcon
+              }
               alt={user.userName}
               fill
               className="object-cover object-center rounded-full"
@@ -192,7 +196,9 @@ export default async function Page() {
           </div>
         </div>
         <div className="space-y-1">
-          <h1 className="text-xl md:text-3xl font-bold">{user.userName}</h1>
+          <h1 className="text-xl md:text-3xl font-bold">
+            {user.displayName || user.userName}
+          </h1>
           <h4 className="md:text-xl">u/{user.userName}</h4>
         </div>
       </div>

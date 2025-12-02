@@ -21,12 +21,12 @@ async function page({ params }) {
   let data;
   try {
     const signedInUserId = await getUserId();
-    console.log(
-      `🎁 UserId page.js: Got targetUserId as ${userId} and type is ${typeof userId}`
-    );
-    console.log(
-      `🎁 UserId page.js: Got signedInUserId as ${signedInUserId} and type is ${typeof signedInUserId}`
-    );
+    // console.log(
+    //   `🎁 UserId page.js: Got targetUserId as ${userId} and type is ${typeof userId}`
+    // );
+    // console.log(
+    //   `🎁 UserId page.js: Got signedInUserId as ${signedInUserId} and type is ${typeof signedInUserId}`
+    // );
     data = await getUserProfileDetailByUserId(
       userId,
       signedInUserId || undefined
@@ -42,7 +42,7 @@ async function page({ params }) {
   //   allPost
   // );
   // console.log(`🎁UserId page.js: Got user as :`, user);
-  console.log(`🎁UserId page.js: Got comments as :`, allComments);
+  // console.log(`🎁UserId page.js: Got comments as :`, allComments);
   // const user = {
   //   userId: userId,
   //   createdAt: new Date(),
@@ -165,13 +165,19 @@ async function page({ params }) {
         {/* Image container */}
         <div className="relative h-28 w-28 md:h-36 md:w-36 rounded-full bg-sky-100">
           <Image
-            src={user.userIcon}
+            src={
+              user.userIcon === "" || !user.userIcon
+                ? "/discusso_logo.png"
+                : user.userIcon
+            }
             alt={user.userName}
             fill
             className="object-contain rounded-full"
           />
         </div>
-        <p className="font-bold text-lg md:text-xl">{user.userName}</p>
+        <p className="font-bold text-lg md:text-xl">
+          {user.displayName || user.userName}
+        </p>
         <p className="text-sm md:text-lg">u/{user.userName}</p>
       </div>
       {/* About section */}

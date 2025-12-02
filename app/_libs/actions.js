@@ -23,6 +23,7 @@ import {
   insertPost,
   saveOrUpdateRefreshToken,
   toggleCommunityJoin,
+  updateUserData,
   updateUserLocation,
   uploadPostImages,
   upsertCommentInteraction,
@@ -771,5 +772,29 @@ export async function getSavedPostsAction() {
       err
     );
     return { error: "Error while fetching saved post." };
+  }
+}
+
+export async function updateUserDataAction(formData) {
+  const col = formData.get("col");
+  const val = formData.get("val");
+
+  if (!col || !val) {
+    return { error: "Incomplete Data... We can't complete this operation" };
+  }
+
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      return { error: "No user found. Please sign in again." };
+    }
+    const data = await updateUserData(val, col, userId);
+    return { success: "Data updated succesfully", data };
+  } catch (err) {
+    console.error(
+      "💣action.js: Got error in updateUserDataAction function as: ",
+      err
+    );
+    return { error: "Something went wrong please try again later." };
   }
 }

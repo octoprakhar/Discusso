@@ -2,16 +2,42 @@
 
 import { createContext, useContext, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { updateUserDataAction } from "../_libs/actions";
+import toast from "react-hot-toast";
 
 const CardContext = createContext(null);
 
-function Card({ children, onClose, setting }) {
+function Card({ children, onClose, setting, onUpdateSettings }) {
+  const [value, setValue] = useState("");
   const handleClick = () => {
     // openCard(id);
     onClose();
   };
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("col", setting.col);
+    formData.append("val", value);
+
+    try {
+      const res = await updateUserDataAction(formData);
+
+      if (res.success) {
+        toast.success(res.message || "Updated successfully!");
+        onUpdateSettings(setting.col, value);
+        onClose();
+      } else {
+        toast.error(res.message || "Something went wrong!");
+      }
+    } catch (err) {
+      toast.error(err.message || "Something went wrong");
+    }
+  };
+
   return (
-    <CardContext.Provider value={{ setting: setting, onClose }}>
+    <CardContext.Provider
+      value={{ setting: setting, onClose, value, setValue, handleSubmit }}
+    >
       {/* Backdrop */}
       {/* // Backdrop (blocks all clicks underneath) */}
       <div
@@ -41,7 +67,7 @@ function Card({ children, onClose, setting }) {
 }
 
 function CardButton() {
-  const { setting, onClose } = useContext(CardContext);
+  const { setting, onClose, handleSubmit } = useContext(CardContext);
   const { primaryText, secondaryText } = setting;
   return (
     <div className="w-full flex justify-end items-center px-2 py-1 gap-2">
@@ -51,29 +77,52 @@ function CardButton() {
       >
         {secondaryText}
       </button>
-      <button className="px-2 py-1 rounded-xl bg-sky-500 cursor-pointer hover:bg-sky-700 text-white">
+      <button
+        className="px-2 py-1 rounded-xl bg-sky-500 cursor-pointer hover:bg-sky-700 text-white"
+        onClick={handleSubmit}
+      >
         {primaryText}
       </button>
     </div>
   );
 }
 
+function CardAvatarUploader() {
+  const { setValue } = useContext(CardContext);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setValue(file);
+  };
+
+  return (
+    <div className="mb-4">
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="cursor-pointer"
+      />
+    </div>
+  );
+}
+
 function CardInputField() {
-  const [title, setTitle] = useState("");
-  const { setting } = useContext(CardContext);
+  // const [title, setTitle] = useState("");
+  const { setting, value, setValue } = useContext(CardContext);
   const { title: placeholderTitle, maxCharLen = "" } = setting;
 
   return (
     <div>
       <input
         type="text"
-        value={title}
+        value={value}
         onChange={(e) => {
           if (!maxCharLen) {
-            setTitle(e.target.value);
+            setValue(e.target.value);
           }
           if (maxCharLen && e.target.value.length <= maxCharLen) {
-            setTitle(e.target.value);
+            setValue(e.target.value);
           }
         }}
         className="w-full sm:max-w-[70vw] border-slate-400 border-2 rounded-2xl px-2 py-2 text-xl hover:cursor-pointer hover:bg-slate-200 hover:border-black"
@@ -84,12 +133,12 @@ function CardInputField() {
       {maxCharLen && (
         <div
           className={`text-sm mt-1 ${
-            title.length >= maxCharLen
+            value.length >= maxCharLen
               ? "text-red-500 font-bold"
               : "text-gray-600"
           }`}
         >
-          {title.length}/{maxCharLen}
+          {value.length}/{maxCharLen}
         </div>
       )}
     </div>
@@ -97,15 +146,15 @@ function CardInputField() {
 }
 
 function CardOptionSelector() {
-  const { setting } = useContext(CardContext);
+  const { setting, value, setValue } = useContext(CardContext);
   const { optionArr } = setting;
-  const [selectedOption, setSelectedOption] = useState("");
+  // const [selectedOption, setSelectedOption] = useState("");
 
   if (!optionArr) return;
 
-  const handleOptionChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
+  // const handleOptionChange = (e) => {
+  //   setSelectedOption(e.target.value);
+  // };
 
   return (
     <div>
@@ -115,17 +164,23 @@ function CardOptionSelector() {
           <label className="block" key={idx}>
             <input
               type="radio"
-              value={option}
-              checked={selectedOption === option}
-              onChange={handleOptionChange}
+              // value={option}
+              checked={value === option}
+              onChange={() => setValue(option)}
             />
             {option}
           </label>
         ))}
       </div>
-      <p>Selected Option: {selectedOption}</p>
+      <p>Selected Option: {value}</p>
     </div>
   );
 }
 
-export { Card, CardButton, CardInputField, CardOptionSelector };
+export {
+  Card,
+  CardButton,
+  CardInputField,
+  CardOptionSelector,
+  CardAvatarUploader,
+};

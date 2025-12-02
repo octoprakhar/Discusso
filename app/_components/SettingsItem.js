@@ -1,7 +1,5 @@
 "use client";
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
-import { Card } from "./Card";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 function SettingsItem({
   id,

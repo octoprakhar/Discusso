@@ -596,3 +596,76 @@ export async function getUserProfileDetailByUserId(
 
   return data;
 }
+
+export async function getUserById(userId) {
+  const { data, error } = await supabase
+    .from("User")
+    .select("displayName,gender,email")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error getting setting data", error);
+    throw new Error("Could not get details of this user");
+  }
+
+  // console.log("🎁 Data-service.js: Got userid as :", userId);
+  // console.log("🎁 Data-service.js: GetuserById data as: ", data);
+
+  return data;
+}
+
+export async function updateUserData(value, column, userId) {
+  const allowedColumns = ["displayName", "email", "gender", "userIcon"];
+
+  if (!allowedColumns.includes(column)) {
+    throw new Error("Invalid column name");
+  }
+
+  let avatarpublicImage;
+  if (column === "userIcon") {
+    //Upload image to database
+    //Defining a unique filename to avoid overwrites
+    const filePath = `${Date.now()}_${value.name}`;
+
+    // Uploading file to supabase
+    const { data, error } = await supabase.storage
+      .from("Users")
+      .upload(filePath, value, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Upload failed:", error);
+      throw new Error("Something went wrong. Please try again later.");
+    }
+
+    //Getting a public URL for the uploaded file
+    const { data: publicUrlData, error: publicUrlError } = supabase.storage
+      .from("Users")
+      .getPublicUrl(data.path);
+
+    if (publicUrlError) {
+      console.error("Fetching uploaded image failed:", publicUrlError);
+      throw new Error("Something went wrong. Please try again later.");
+    }
+    avatarpublicImage = publicUrlData.publicUrl;
+  }
+
+  const { data, error } = await supabase
+    .from("User")
+    .update({
+      [column]:
+        column === "userIcon" && avatarpublicImage ? avatarpublicImage : value,
+    })
+    .eq("id", userId)
+    .select();
+
+  if (error) {
+    console.error("Error updating user data", error);
+    throw new Error("Could not update details of this user");
+  }
+
+  return data;
+}
