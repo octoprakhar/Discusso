@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { inserNewCommunityAction } from "../_libs/actions";
+import { supabase } from "../_libs/supabaseClient";
 
 function CreateCommunityForm() {
   const router = useRouter();
@@ -22,7 +24,7 @@ function CreateCommunityForm() {
     setCommunityDesc(e.target.value);
   };
 
-  // ✅ Handle image selection
+  //  Handle image selection
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -31,31 +33,65 @@ function CreateCommunityForm() {
     }
   };
 
-  // ✅ Handle form submission (later, for upload)
-  const handleSubmit = (e) => {
+  // Handle form submission (later, for upload)
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can later upload `communityLogo` to Firebase or your server
-    console.log({
-      communityName,
-      communityTitle,
-      communityDesc,
-      communityLogo,
-    });
+    // later upload `communityLogo` to Firebase or your server
+    // console.log({
+    //   communityName,
+    //   communityTitle,
+    //   communityDesc,
+    //   communityLogo,
+    // });
 
-    // Simple validation example
+    if (!communityLogo) {
+      toast.error("Select a logo!");
+      return;
+    }
+
+    // Simple validation
     if (!communityName || !communityTitle) {
       toast.error("Please fill required fields");
       return;
     }
 
     //Send it to server action. if answer is success navigate to that specific community of that person
-    const communityId = 2;
-    if (communityId) {
-      toast.success("Successfully created the community!");
-      router.push(`/communities/${communityId}`);
-    } else {
-      toast.error("Error while creating post.");
-      router.push("/");
+    try {
+      const filePath = `${Date.now()}_${communityLogo.name}`;
+
+      // Upload image directly from client
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("Communities")
+        .upload(filePath, communityLogo);
+
+      if (uploadError) {
+        console.error(uploadError);
+        toast.error("Image upload failed!");
+        return;
+      }
+
+      //  Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("Communities").getPublicUrl(uploadData.path);
+
+      //  Now send only text + image URL to server action
+      const res = await inserNewCommunityAction({
+        name: communityName,
+        title: communityTitle,
+        description: communityDesc,
+        logoUrl: publicUrl,
+      });
+
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Community created!");
+        router.push(`/communities/${res.communityId}`);
+      }
+    } catch (err) {
+      toast.error("Something went wrong.");
+      console.error(err);
     }
   };
 

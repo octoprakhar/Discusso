@@ -19,6 +19,7 @@ import {
   getPostsWithFullData,
   getPostWithFullData,
   insertNewComment,
+  insertNewCommunity,
   insertNewUser,
   insertPost,
   saveOrUpdateRefreshToken,
@@ -796,5 +797,36 @@ export async function updateUserDataAction(formData) {
       err
     );
     return { error: "Something went wrong please try again later." };
+  }
+}
+
+export async function inserNewCommunityAction({
+  name,
+  title,
+  description,
+  logoUrl,
+}) {
+  if (!name || !title || !description || !logoUrl) {
+    return { error: "All fields are required" };
+  }
+
+  try {
+    const creatorId = await getUserId();
+
+    const community = {
+      name,
+      title,
+      description,
+      logo: logoUrl,
+      creatorId,
+      createdAt: new Date().toISOString(),
+    };
+
+    const data = await insertNewCommunity(community);
+
+    return { success: true, communityId: data[0].id };
+  } catch (err) {
+    console.error(err);
+    return { error: "Something went wrong." };
   }
 }

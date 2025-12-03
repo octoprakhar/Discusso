@@ -669,3 +669,27 @@ export async function updateUserData(value, column, userId) {
 
   return data;
 }
+
+export async function getUserKarma(userId) {
+  const { data, error } = await supabase.rpc("get_user_karma", {
+    target_user_id: userId,
+  });
+
+  if (error) {
+    console.error("Error getting karma by userId:", error);
+    throw new Error("Could not get karma of this user");
+  }
+
+  return data;
+}
+
+export async function insertNewCommunity(community) {
+  const { data, error } = await supabase
+    .from("Community")
+    .insert([community])
+    .select();
+
+  if (error) throw error;
+
+  return data;
+}

@@ -37,7 +37,7 @@ function CommunityAboutSection({
       <div
         className={`
           w-[95%] mx-auto px-4 py-2 md:text-2xl space-y-1 rounded-2xl mb-2 bg-slate-100
-          overflow-hidden transition-all duration-500 ease-in-out
+          overflow-x-hidden overflow-y-scroll transition-all duration-500 ease-in-out
           ${isOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}
         `}
       >
