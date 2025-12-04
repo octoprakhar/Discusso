@@ -17,13 +17,13 @@ function SearchPostItem({ post, maxChar = 100 }) {
         <div className="flex items-center gap-2 text-sm md:text-base">
           <div className="relative w-6 h-6 md:w-8 md:h-8 rounded-full border-2">
             <Image
-              src={post.communityLogo}
-              alt={post.communityName}
+              src={post.communitylogo}
+              alt={post.communityname}
               fill
               className="rounded-full object-cover object-center"
             />
           </div>
-          <span>d/{post.communityName}</span>
+          <span>d/{post.communityname}</span>
         </div>
         <h1 className="text-lg md:text-2xl font-bold">
           {post.title.length >= maxChar
@@ -31,18 +31,20 @@ function SearchPostItem({ post, maxChar = 100 }) {
             : post.title}
         </h1>
         <div className="flex items-center gap-2 text-sm md:text-base">
-          <span>{post.upvotes + post.downvotes} Votes &middot;</span>
-          <span>{post.noOfComments} Comments</span>
+          <span>{post.noofupvotes + post.noofdownvotes} Votes &middot;</span>
+          <span>{post.noofcomments} Comments</span>
         </div>
       </div>
-      <div className="relative w-12 h-12 md:w-18 md:h-18 rounded-xl">
-        <Image
-          src={post.images.at(0)}
-          alt={post.userName}
-          fill
-          className="object-cover object-center rounded-xl"
-        />
-      </div>
+      {post.media && (
+        <div className="relative w-12 h-12 md:w-18 md:h-18 rounded-xl">
+          <Image
+            src={post.media?.images[0]}
+            alt={post.username}
+            fill
+            className="object-cover object-center rounded-xl"
+          />
+        </div>
+      )}
     </div>
   );
 }

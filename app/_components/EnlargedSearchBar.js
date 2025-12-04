@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import SearchSuggestionContainer from "./SearchSuggestionContainer";
 import { useRouter } from "next/navigation";
+import { getSearchSuggestionsAction } from "../_libs/actions";
 
 function EnlargedSearchBar() {
   const [searchText, setSearchText] = useState("");
@@ -47,7 +48,7 @@ function EnlargedSearchBar() {
       {searchText && (
         <SearchSuggestionContainer
           searchText={searchText}
-          onSuggestionClick={handleSuggestionClick}
+          // onSuggestionClick={handleSuggestionClick}
         />
       )}
     </>

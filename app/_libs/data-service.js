@@ -691,5 +691,66 @@ export async function insertNewCommunity(community) {
 
   if (error) throw error;
 
+  //Insert the user in community
+  const newComId = data[0].id;
+  const userId = community.creatorId;
+
+  const { data: communityInteractionData, error: communityInteractionError } =
+    await supabase
+      .from("CommunityInteraction")
+      .insert([
+        {
+          communityId: newComId,
+          userId: userId,
+          isMember: true,
+          joinedAt: new Date().toISOString(),
+        },
+      ])
+      .select();
+
+  if (communityInteractionError) throw communityInteractionError;
+
   return data;
+}
+
+export async function getSearchSuggestions(searchText) {
+  //Getting post search result
+  const { data, error } = await supabase.rpc("search_suggestions", {
+    search_text: searchText,
+  });
+
+  if (error) {
+    console.error("Error getting search by post:", error);
+    throw new Error("Could not get post search");
+  }
+
+  return data;
+}
+
+export async function getSearchResults(searchText) {
+  //Getting post search result
+  const { data: postSearchData, error: postSearchError } = await supabase.rpc(
+    "search_posts",
+    {
+      search_text: searchText,
+    }
+  );
+
+  if (postSearchError) {
+    console.error("Error getting search by post:", postSearchError);
+    throw new Error("Could not get post search");
+  }
+
+  //Getting community post
+  const { data: communitySearchData, error: communitySearchError } =
+    await supabase.rpc("search_communities", {
+      search_text: searchText,
+    });
+
+  if (communitySearchError) {
+    console.error("Error getting search by community:", communitySearchError);
+    throw new Error("Could not get community search");
+  }
+
+  return { postSearchData, communitySearchData };
 }

@@ -18,6 +18,8 @@ import {
   getPostDataWithCommentsForSignedInUser,
   getPostsWithFullData,
   getPostWithFullData,
+  getSearchResults,
+  getSearchSuggestions,
   insertNewComment,
   insertNewCommunity,
   insertNewUser,
@@ -827,6 +829,24 @@ export async function inserNewCommunityAction({
     return { success: true, communityId: data[0].id };
   } catch (err) {
     console.error(err);
+    return { error: "Something went wrong." };
+  }
+}
+
+export async function getSearchSuggestionsAction(formData) {
+  const searchText = formData.get("searchText");
+  if (!searchText) {
+    return { error: "Incomplete Data... We can't complete this operation" };
+  }
+
+  try {
+    const { posts, communities } = await getSearchSuggestions(searchText);
+    // console.log("🤩 Action.js: Got data as, ", data);
+    // console.log("🤩 Action.js: Got data for post as,", posts);
+    // console.log("🤩 Action.js: Got data for community as,", communities);
+    return { success: "Succesfully get suggestion", posts, communities };
+  } catch (err) {
+    console.error("💣 Action.js: Can't get search suggestion.", err);
     return { error: "Something went wrong." };
   }
 }

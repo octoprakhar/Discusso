@@ -17,7 +17,7 @@ function SearchCommunityItem({ community, maxChar = 100 }) {
       <div className="flex items-center gap-2">
         <div className="relative w-12 h-12 md:w-18 md:h-18 rounded-full">
           <Image
-            src={community.icon}
+            src={community.logo}
             alt={community.name}
             fill
             className="object-cover object-center rounded-full"
@@ -31,7 +31,7 @@ function SearchCommunityItem({ community, maxChar = 100 }) {
               : community.title}
           </p>
           <p className="text-sm text-slate-600">
-            {community.noOfMembers} members.
+            {community.noofmembers} members.
           </p>
         </div>
       </div>
