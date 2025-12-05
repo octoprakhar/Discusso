@@ -6,6 +6,8 @@ import { CameraIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   /*
     a. I need all the posts from the user that has logged in.
