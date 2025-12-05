@@ -5,28 +5,41 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CommunityBrief from "./CommunityBrief";
 import { useSetQueryParams } from "../_hooks/useSetQueryParams";
+import { useCreatePostContext } from "../context/PostContext";
 
-function CommunitySelector({
-  communityList,
-  draftedCommunity = "",
-  draftedCommunityId = -1,
-  communityId = "",
-}) {
-  const isUserJoinedThatCommunity = communityList.find(
-    (com) => com.communityId === communityId
-  );
-  const [filteredCommunity, setFilteredCommunity] = useState(communityList);
-  const [toShowInput, setToShowInput] = useState(false);
+function CommunitySelector() {
+  const {
+    selectedCommunityId,
+    setSelectedCommunityId,
+    communityList,
+    draftedCommunity,
+    communityId,
+    filteredCommunity,
+    setFilteredCommunity,
+    toShowInput,
+    setToShowInput,
+    inputCommunityName,
+    setInputCommunityName,
+    isUserJoinedThatCommunity,
+    selectedCommunityImage,
+  } = useCreatePostContext();
+  // console.log("Got community List as", communityList);
+  // console.log("Got selected community id as, ", selectedCommunityId);
+  // const isUserJoinedThatCommunity = communityList.find(
+  //   (com) => com.communityId === communityId
+  // );
+  // const [filteredCommunity, setFilteredCommunity] = useState(communityList);
+  // const [toShowInput, setToShowInput] = useState(false);
   const containerRef = useRef(null); // ref for outside click detection
-  const [selectedCommunityId, setSelectedCommunityId] = useState(
-    draftedCommunityId > 0 ? draftedCommunityId : null
-  );
-  const [inputCommunityName, setInputCommunityName] = useState(
-    draftedCommunity || isUserJoinedThatCommunity?.name || ""
-  );
+  // const [selectedCommunityId, setSelectedCommunityId] = useState(
+  //   draftedCommunityId > 0 ? draftedCommunityId : null
+  // );
+  // const [inputCommunityName, setInputCommunityName] = useState(
+  //   draftedCommunity || isUserJoinedThatCommunity?.name || ""
+  // );
 
   const { setQueryParam } = useSetQueryParams();
 
@@ -34,9 +47,9 @@ function CommunitySelector({
     setToShowInput(true);
   };
 
-  const closeInputField = () => {
+  const closeInputField = useCallback(() => {
     setToShowInput(false);
-  };
+  });
 
   const changeInput = (e) => {
     setInputCommunityName(e.target.value);
@@ -61,7 +74,7 @@ function CommunitySelector({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [toShowInput]);
+  }, [closeInputField, toShowInput]);
 
   //Handle community selection
   const handleCommunitySelect = (id) => {
@@ -77,6 +90,8 @@ function CommunitySelector({
     }
     closeInputField();
   };
+
+  // console.log(selectedCommunityId);
 
   //Filtering the list
   useEffect(() => {
@@ -95,15 +110,26 @@ function CommunitySelector({
     } else {
       setFilteredCommunity(communityList);
     }
-  }, [inputCommunityName, communityList]);
+  }, [inputCommunityName, communityList, setFilteredCommunity]);
+
+  // useEffect(() => {
+  //   if (!isUserJoinedThatCommunity) {
+  //     setSelectedCommunityId(null);
+  //   } else {
+  //     setSelectedCommunityId(isUserJoinedThatCommunity.communityId);
+  //   }
+  // }, [
+  //   communityId,
+  //   communityList,
+  //   isUserJoinedThatCommunity,
+  //   setSelectedCommunityId,
+  // ]);
 
   useEffect(() => {
-    if (!isUserJoinedThatCommunity) {
-      setSelectedCommunityId(null);
-    } else {
+    if (selectedCommunityId === null && isUserJoinedThatCommunity) {
       setSelectedCommunityId(isUserJoinedThatCommunity.communityId);
     }
-  }, [communityId, communityList]);
+  }, []);
 
   return (
     <div ref={containerRef}>
@@ -115,7 +141,9 @@ function CommunitySelector({
           <div className="relative h-6 w-6 md:h-12 md:w-12 rounded-full">
             <Image
               src={
-                selectedCommunityId
+                selectedCommunityImage
+                  ? selectedCommunityImage
+                  : selectedCommunityId
                   ? communityList.find(
                       (c) => c.communityId === selectedCommunityId
                     )?.icon || "/discusso_logo.png"

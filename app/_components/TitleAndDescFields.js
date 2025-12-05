@@ -5,20 +5,40 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { createPost } from "../_libs/actions";
 import SmallSpinner from "./SmallSpinner";
+import { useCreatePostContext } from "../context/PostContext";
 
-function TitleAndDescFields({ draftTitle = "", draftBody = "" }) {
+function TitleAndDescFields() {
   const router = useRouter();
-  const [title, setTitle] = useState(draftTitle);
-  const [body, setBody] = useState(draftBody);
-  const [links, setLinks] = useState([]);
-  const [keyLink, setKeyLink] = useState("");
-  const [valueLink, setValueLink] = useState("");
+  const {
+    title,
+    setTitle,
+    body,
+    setBody,
+    links,
+    setLinks,
+    keyLink,
+    setKeyLink,
+    valueLink,
+    setValueLink,
+    mediaFiles,
+    setMediaFiles,
+    isLoading,
+    setIsLoading,
+    draftTitle,
+    selectedCommunityImage,
+  } = useCreatePostContext();
+  // const [title, setTitle] = useState(draftTitle);
+  // const [body, setBody] = useState(draftBody);
+  // const [links, setLinks] = useState([]);
+  // const [keyLink, setKeyLink] = useState("");
+  // const [valueLink, setValueLink] = useState("");
+  console.log(`Got title as : ${title}`);
   const searchParams = useSearchParams();
   const postType = searchParams.get("postType");
   const communityId = searchParams.get("com") || "";
 
-  const [mediaFiles, setMediaFiles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [mediaFiles, setMediaFiles] = useState([]);
+  // const [isLoading, setIsLoading] = useState(false);
 
   // Select files
   const handleSelectMedia = (e) => {

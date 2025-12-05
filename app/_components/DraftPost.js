@@ -2,6 +2,7 @@
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useSetQueryParams } from "../_hooks/useSetQueryParams";
 import toast from "react-hot-toast";
+import { formatToTimeAgo } from "../utils/dateTimeUtils";
 
 function DraftPost({ draft }) {
   const { setQueryParam } = useSetQueryParams("/user/create-post");
@@ -21,7 +22,7 @@ function DraftPost({ draft }) {
   return (
     <div
       onClick={() => {
-        setQueryParam("draftId", draft.id);
+        setQueryParam("draftId", draft.draftId);
       }}
       className="flex justify-between items-center w-[95%] md:w-[85%] mx-auto border-[1px] rounded-2xl px-2 py-1 md:px-4 md:py-2 bg-slate-50 hover:bg-slate-300 cursor-pointer"
     >
@@ -31,9 +32,12 @@ function DraftPost({ draft }) {
           <span className="md:text-2xl">{draft.title}</span>
         </div>
         <div className="text-xs md:text-base">
-          <span>{draft.selectedCommunity} : </span>
+          <span>d/{draft.communityName} : </span>
           <span>
-            Edited <strong className="font-bold">{draft.lastEditedAt}</strong>
+            Edited{" "}
+            <strong className="font-bold">
+              {formatToTimeAgo(draft.lastEditedAt)}
+            </strong>
           </span>
         </div>
       </div>

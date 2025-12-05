@@ -754,3 +754,35 @@ export async function getSearchResults(searchText) {
 
   return { postSearchData, communitySearchData };
 }
+
+export async function inserNewDraft(draft) {
+  const { data, error } = await supabase.from("Draft").insert([draft]).select();
+
+  if (error) {
+    console.error("Cannot create draft:", error);
+    throw new Error("Cannot create draft.");
+  }
+
+  return data;
+}
+
+export async function getAllDrafts(userId) {
+  const { data, error } = await supabase.rpc("get_all_drafts", { uid: userId });
+  if (error) {
+    console.error("Cannot get draft of this user:", error);
+    throw new Error("Cannot get your drafts now.");
+  }
+  return data;
+}
+
+export async function getDraftById(draftId) {
+  const { data, error } = await supabase.rpc("get_draft_by_id", {
+    draft_id: draftId,
+  });
+
+  if (error) {
+    console.error("Cannot get this draft", error);
+    throw new Error("Cannot get your draft now.");
+  }
+  return data[0];
+}

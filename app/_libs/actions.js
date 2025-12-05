@@ -20,6 +20,7 @@ import {
   getPostWithFullData,
   getSearchResults,
   getSearchSuggestions,
+  inserNewDraft,
   insertNewComment,
   insertNewCommunity,
   insertNewUser,
@@ -848,5 +849,31 @@ export async function getSearchSuggestionsAction(formData) {
   } catch (err) {
     console.error("💣 Action.js: Can't get search suggestion.", err);
     return { error: "Something went wrong." };
+  }
+}
+
+export async function insertNewDraftAction(formData) {
+  const selectedCommunityId = formData.get("communityId");
+  const title = formData.get("title") || null;
+  const body = formData.get("body") || null;
+
+  if (!selectedCommunityId) {
+    return { error: "Selecting a community is required to make a draft." };
+  }
+
+  try {
+    const userId = await getUserId();
+    const newDraft = {
+      lastEditedAt: new Date().toISOString(),
+      selectedCommunityId,
+      title,
+      body,
+      userId,
+    };
+    const data = await inserNewDraft(newDraft);
+    return { success: "Succesfully saved the draft" };
+  } catch (err) {
+    console.error("💣 InsertNewDraftAction: Error occured as,", err);
+    return { error: "Something went wrong" };
   }
 }

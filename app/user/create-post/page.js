@@ -2,7 +2,8 @@ import CommunitySelector from "@/app/_components/CommunitySelector";
 import CreatePostHeader from "@/app/_components/CreatePostHeader";
 import PostTypeSelector from "@/app/_components/PostTypeSelector";
 import TitleAndDescFields from "@/app/_components/TitleAndDescFields";
-import { getCommunitiesByUserId } from "@/app/_libs/data-service";
+import { getCommunitiesByUserId, getDraftById } from "@/app/_libs/data-service";
+import { CreatePost } from "@/app/context/PostContext";
 import { getUserId } from "@/app/utils/userUtils";
 
 export default async function Page({ searchParams }) {
@@ -15,6 +16,7 @@ export default async function Page({ searchParams }) {
   //Get the draft from the draft id
   let draft;
   let communityList = [];
+  let modifiedDraft = {};
 
   //Getting all the community details which is joined by the user.
   //Since because of authorization without the signin we can't get in this page. So I can easily get userId without error
@@ -25,6 +27,13 @@ export default async function Page({ searchParams }) {
     //   `🎉 Create-post Page.js: Got community data for this user of userId: ${userId} as: `,
     //   data
     // );
+    if (draftId) {
+      modifiedDraft = await getDraftById(draftId);
+      console.log(
+        "Create-post page.js: Got modified draft as: ",
+        modifiedDraft
+      );
+    }
   } catch (err) {
     console.error(
       "💣 Create-post Page.js: Error occured while getting community of the user",
@@ -32,29 +41,28 @@ export default async function Page({ searchParams }) {
     );
   }
 
-  let modifiedDraft;
-  if (draftId) {
-    draft = {
-      id: 2,
-      lastEditedAt: "Date-Time",
-      userId: 1,
-      selectedCommunityId: 4,
-      title: "Hello this is the title",
-      body: "This is the body",
-    };
+  // if (draftId) {
+  //   draft = {
+  //     id: 2,
+  //     lastEditedAt: "Date-Time",
+  //     userId: 1,
+  //     selectedCommunityId: 4,
+  //     title: "Hello this is the title",
+  //     body: "This is the body",
+  //   };
 
-    //Now get the selected community name , and image from community Id
-    //Then modify the draft
-    modifiedDraft = {
-      id: 2,
-      lastEditedAt: "Date-Time",
-      userId: 1,
-      selectedCommunity: "d/deeplearning",
-      selectedCommunityImage: "/discusso_logo.png",
-      title: "Hello this is the title",
-      body: "This is the body",
-    };
-  }
+  //   //Now get the selected community name , and image from community Id
+  //   //Then modify the draft
+  //   modifiedDraft = {
+  //     id: 2,
+  //     lastEditedAt: "Date-Time",
+  //     userId: 1,
+  //     selectedCommunity: "d/deeplearning",
+  //     selectedCommunityImage: "/discusso_logo.png",
+  //     title: "Hello this is the title",
+  //     body: "This is the body",
+  //   };
+  // }
 
   // const communityList = [
   //   {
@@ -113,20 +121,22 @@ export default async function Page({ searchParams }) {
   //   },
   // ];
   return (
-    <div className="px-2 py-1 space-y-2 sm:w-[90%] mx-auto">
-      {/* Header of this page */}
-      <CreatePostHeader isDraft={draftId ? true : false} />
-      <CommunitySelector
-        communityList={communityList}
-        draftedCommunity={modifiedDraft ? modifiedDraft.selectedCommunity : ""}
-        draftedCommunityId={draftId ? draft.selectedCommunityId : -1}
-        communityId={communityId}
-      />
-      <PostTypeSelector />
-      <TitleAndDescFields
-        draftTitle={modifiedDraft ? modifiedDraft.title : ""}
-        draftBody={modifiedDraft ? modifiedDraft.body : ""}
-      />
-    </div>
+    <CreatePost
+      draftTitle={modifiedDraft ? modifiedDraft.title : ""}
+      draftBody={modifiedDraft ? modifiedDraft.body : ""}
+      draftedCommunityId={draftId ? modifiedDraft.selectedCommunityId : -1}
+      communityList={communityList}
+      draftedCommunity={modifiedDraft ? modifiedDraft.selectedCommunity : ""}
+      communityId={communityId}
+      draftedCommunityImage={modifiedDraft.selectedCommunityImage}
+    >
+      <div className="px-2 py-1 space-y-2 sm:w-[90%] mx-auto">
+        {/* Header of this page */}
+        <CreatePostHeader isDraft={draftId ? true : false} />
+        <CommunitySelector />
+        <PostTypeSelector />
+        <TitleAndDescFields />
+      </div>
+    </CreatePost>
   );
 }
