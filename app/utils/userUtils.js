@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { verifyRefreshToken } from "./tokenUtils";
 import { findUserIdbyEmail } from "../_libs/data-service";
 
+export const dynamic = "force-dynamic";
+
 export async function getUserId() {
   let userId = null;
   try {
