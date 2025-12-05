@@ -3,6 +3,8 @@ import { Post, PostDescription, PostImages } from "@/app/_components/Posts";
 import { getUserProfileDetailByUserId } from "@/app/_libs/data-service";
 import { getUserId } from "@/app/utils/userUtils";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   //Get all the created post from the user
 
