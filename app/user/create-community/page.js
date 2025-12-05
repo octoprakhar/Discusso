@@ -3,6 +3,8 @@ import CreateCommunityNotAllowed from "@/app/_components/CreateCommunityNotAllow
 import { getUserKarma } from "@/app/_libs/data-service";
 import { getUserId } from "@/app/utils/userUtils";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   //Get the upvotes and downvotes from the signed-in user
 

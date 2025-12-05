@@ -6,6 +6,8 @@ import { getCommunitiesByUserId, getDraftById } from "@/app/_libs/data-service";
 import { CreatePost } from "@/app/context/PostContext";
 import { getUserId } from "@/app/utils/userUtils";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({ searchParams }) {
   //Get all the list of communities user has joined
 
