@@ -3,6 +3,8 @@ import SettingsOptions from "../_components/SettingsOptions";
 import { getUserById } from "../_libs/data-service";
 import { getUserId } from "../utils/userUtils";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   let user;
   try {
