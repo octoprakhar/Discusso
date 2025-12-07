@@ -12,7 +12,7 @@ Discusso enables users to **create posts, join communities, vote, comment, and e
 
 ![Home](./public/screenshots/home-page-1.png)
 ![Post](./public/screenshots/post-page-1.png)
-![Community](./public/screenshots/Community.png)
+![Community](./public/screenshots/community.png)
 
 ## Live Demo
 
@@ -51,17 +51,6 @@ Discusso enables users to **create posts, join communities, vote, comment, and e
 - **User**: create posts/drafts, vote, comment, join communities
 - **Admin (future)**: manage reports, moderation
 
-```mermaid
-flowchart TD
-    A[Guest] --> B[Browse Feed / Search]
-    B --> C[Login Required Actions]
-    C --> D[Login / Signup] --> E[User Dashboard]
-    E --> F[Create Post / Save Draft]
-    E --> G[Communities (Join/Leave)]
-    E --> H[Settings / Logout]
-
-```
-
 ## Tech Stack
 
 - **Frontend & Backend**: Next.js + TailwindCSS
@@ -79,14 +68,14 @@ Future ML Microservices
 
 ## Folder Structure
 
-/app → Pages & App Router
-/\_components → Reusable components
-/\_hooks → Custom hooks
-/\_libs → API calls
-/\_context → Context API
-/utils → Utility functions
-/public → Static assets
-/\_tests → Test cases
+- /app → Pages & App Router
+- /\_components → Reusable components
+- /\_hooks → Custom hooks
+- /\_libs → API calls
+- /\_context → Context API
+- /utils → Utility functions
+- /public → Static assets
+- /\_tests → Test cases
 
 ## Development Roadmap
 
