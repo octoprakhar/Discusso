@@ -92,11 +92,11 @@ Future ML Microservices
 
 3. Create `.env.local` and add:
 
-SUPABASE_URL=your-url
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=service-role-key
-REFRESH_TOKEN_SECRET=your-secret
-ACCESS_TOKEN_SECRET=your-secret
+- SUPABASE_URL=your-url
+- SUPABASE_ANON_KEY=your-anon-key
+- SUPABASE_SERVICE_ROLE_KEY=service-role-key
+- REFRESH_TOKEN_SECRET=your-secret
+- ACCESS_TOKEN_SECRET=your-secret
 
 ⚠ Do NOT share your Supabase service role key.
 
