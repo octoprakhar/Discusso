@@ -232,6 +232,7 @@ function Post({
             (isPostSaved === false ? (
               isLoading === false ? (
                 <BookmarkSquareIcon
+                  data-testid="save-button"
                   className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
                   onClick={async (e) => {
                     e.preventDefault();
@@ -269,6 +270,7 @@ function Post({
               )
             ) : isLoading === false ? (
               <XCircleIcon
+                data-testid="unsave-button"
                 className="h-6 w-6 md:h-8 md:w-8 hover:fill-sky-600"
                 onClick={async (e) => {
                   e.preventDefault();

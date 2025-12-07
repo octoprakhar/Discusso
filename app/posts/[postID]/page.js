@@ -38,10 +38,10 @@ async function page({ params }) {
   //   video: "/sample_video.mp4",
   // };
 
-  const user = {
-    userId: 2,
-    username: "CupPrize1581",
-  };
+  // const user = {
+  //   userId: 2,
+  //   username: "CupPrize1581",
+  // };
 
   /* 
  Comment Table must be something like this 
@@ -120,6 +120,10 @@ const post = {
     video: "/sample_video.mp4",
   };
 */
+
+  console.log(`PostId Page.js: Comment are :`, comments);
+  console.log(`PostId Page.js: post are :`, post);
+  console.log(`PostId Page.js: community are :`, community);
   return (
     <div className="lg:flex lg:gap-4">
       <div className="overflow-x-hidden w-full sm:w-xl md:w-2xl sm:mx-auto border-t-[1px] border-b-[1px] px-2 py-1 flex flex-col flex-1">

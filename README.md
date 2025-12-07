@@ -1,285 +1,141 @@
-# Discusso : Where conversations find a home.
+# Discusso: Where Conversations Find a Home
 
-## Project Requirements
+## TL;DR
 
-**Discusso** is a social community platfor inspired by Reddit. It enables users to share posts, join discussions, and explore communities. The platform also integrates ML/DL features(in later phases) for personalized recommendations, semantic search, and content moderation.
+Reddit-style discussion platform built with **Next.js + Supabase**, featuring JWT authentication, communities, posts with drafts, voting, comments, search, and a future ML layer for personalized feeds and semantic search.
+
+## Overview
+
+Discusso enables users to **create posts, join communities, vote, comment, and explore trending content**. Built with Next.js and Supabase with custom JWT auth, and future ML enhancements like content recommendations, toxicity detection, and semantic search.
+
+## Preview
+
+![Home](./public/screenshots/home-page-1.png)
+![Post](./public/screenshots/post-page-1.png)
+![Community](./public/screenshots/Community.png)
+
+## Live Demo
+
+![Demo](./public/screenshots/demo-video.gif)
 
 ## Core Features
 
-### Authentication & User Management
+**Authentication**
 
-    1. User Registration & Login
-        - New users register with email + password
-        - Login with valid credentials
-        - Sessions are persisted(user stays logged in unless explicitly signed out)
-    2. Session Handling
-        - If already logged in, redirect to home(skip login page).
-        - Secure session management with JWT cookies.
-    3. Profile Management
-        - Update profile(username, avatar).
-        - Manage drafts (saved posts).
-        - Change email & password.
-        - View karma (upvotes - downvotes).
+- JWT-based login, session retention, profile management
 
-### Communities
+**Communities**
 
-    1. Create Communities
-        - Users with >= **50 karma** and joined >= **50 days ago** can create a community.
-        - Communities prefixed with "d/"(like d/technology).
-    2. Explore Communities
-        - An Explore tab shows recommended communities (via ML recommendations).
-        - Users can search communities using (d/<name>).
+- Create, join, and explore communities
 
-### Posts & Feeds
+**Posts & Feeds**
 
-    1. Create Posts
-        - Fields:
-            * Community name (d/community)
-            * Title (required)
-            * Body (optional, formatted with Markdown-style editor: bold, italic, code, blocks, images)
-            * Tags (Mature, Spoiler, Affiliate, None)
-            * Attachments: Images/videos
-        - Options: **Publish** or **Save as Draft**.
-        - User can save upto 20 drafts.
-        - They will be shown and opened through button of profile dropdown. Initially we can't save media files and links in draft.
-    2. Feed System
-        - Home Feed: posts from joined communities.
-        - Popular Feed: top upvoted posts site-wide.
-        - Explore Feed: recommened posts/communities (ML-powered).
-    3. Post Interactions
-        - Upvote/Downvote (affects karrma).
-        - Share (copy link)
-        - Comment + reply.
-        - Bookmark/save for later.
+- Markdown editor, media uploads, tags, drafts
+- Dynamic feeds: Home, Popular, Explore
 
-### Search
+**Interactions**
 
-    1. Search by:
-        - Community (d/xyz)
-        - Post title or description
-    2. (Future ML Feature) **Semantic Search** -> FInd posts by meaning, not just keywords.
+- Upvote/downvote, comments, bookmarks
 
-### Gamification (Karma System)
+**Search**
 
-    1. Karma - Total upvotes - downvotes
-    2. Karma unlocks features (like community creation).
-    3. Visible in user profile.
+- Posts & communities
 
-## Planned ML/DL Features (Phase 2)
+**Gamification**
 
-    1. Personalized Feed -> Recommend posts based on user behavior.
-    2. Toxicity Detection -> Flag/report offensive comments using NLP.
-    3. Auto-Tagging -> NLP to generate suggested tags for new posts.
-    4. Semantic Search -> Use embeddings for meaning-based search
-    5. Trend Prediction -> Early prediction of which posts will become popular.
+- Karma unlocks features
 
 ## App Flow
 
-    1. Guest User
-        - Can Browse public posts.
-        - Can search communities/posts.
-        - Redirected to login when trying to upvote/comment/create.
+- **Guest**: browse content, search; login required to interact
+- **User**: create posts/drafts, vote, comment, join communities
+- **Admin (future)**: manage reports, moderation
 
-    2. Authenticated User
-        - Access home feed, communities, and profile.
-        - Create posts/draft.
-        - Vote, comment, share, and save posts.
-        - Eligible to create communities if requirements met.
+```mermaid
+flowchart TD
+    A[Guest] --> B[Browse Feed / Search]
+    B --> C[Login Required Actions]
+    C --> D[Login / Signup] --> E[User Dashboard]
+    E --> F[Create Post / Save Draft]
+    E --> G[Communities (Join/Leave)]
+    E --> H[Settings / Logout]
 
-    3. Admin/Moderator (Future)
-        - Manage flagged posts/comments
-        - Community moderation (ban usrs, approve posts).
+```
 
 ## Tech Stack
 
-    - **Frontend & Backend**: Next.js + TailwindCSS
-    - **Database**: Supabase(Postgres)
-    - **Authentication**: Custom JWT (via Next.js API routes)
-    - **ML/DL Models**: HuggingFace/ PyTorch / Tesorflow (later integration)
-    - Deployment: Vercel
+- **Frontend & Backend**: Next.js + TailwindCSS
+- **Database**: Supabase(Postgres)
+- **Authentication**: Custom JWT (via Next.js API routes)
+- **ML/DL Models**: HuggingFace/ PyTorch / Tesorflow (later integration)
+- Deployment: Vercel
+
+## System Architecture
+
+Client (Next.js) --> Next.js API Routes --> Supabase DB/Storage
+|
+v
+Future ML Microservices
+
+## Folder Structure
+
+/app → Pages & App Router
+/\_components → Reusable components
+/\_hooks → Custom hooks
+/\_libs → API calls
+/\_context → Context API
+/utils → Utility functions
+/public → Static assets
+/\_tests → Test cases
 
 ## Development Roadmap
 
-### Phase 1 - UI skeleton(1-2 weeks)
+- **Phase 1**: UI Skeleton(Completed)
+- **Phase 2**: Authentication & Profiles(Completed)
+- **Phase 3**: Core Features (posts, communities, votes)(Completed)
+- **Phase 4**: ML Features(Upcoming)
 
-    - Build static pages: Home, Popular, Explore, Login/Signup, Profile, Community, Post Detail.
+## How to Run Locally
 
-### Phase 2 - Authentication & Profiles (1 week)
+1. Clone the project
+2. Install dependencies  
+   npm install
 
-    - Custom JWT - based auth
-    - User profile & session handling
+3. Create `.env.local` and add:
 
-### Phase 3 - Core Features (2-3 weeks)
+SUPABASE_URL=your-url
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=service-role-key
+REFRESH_TOKEN_SECRET=your-secret
+ACCESS_TOKEN_SECRET=your-secret
 
-    - Posts(CRUD), communities, votes, comments.
-    - Karma system.
-    - Search.
+⚠ Do NOT share your Supabase service role key.
 
-### Phase 4 - ML/DL Enhancements (2-3 weeks)
+4. Start the app  
+   npm run dev
 
-    - Recommendation system.
-    - Toxicity detection.
-    - Semantic search.
-    - Trend Prediction
+## Future Enhancements
 
-## Routes/Planned pages:
+- Realtime comments
+- Live notifications
+- Advanced ML models for ranking
+- Community moderation tools
+- Mobile app (React Native)
 
-1. "/login" - Login Page
-2. "/register" - Register Page
-3. "/user/create-post" - Create New Posts
-4. "/user/create-community" - Create Community Page
-5. "/" = Home page
-6. "/explore" = Explore Page
-7. "/popular" = Popular Page
-8. "communities/[communityID]" = View a Community Page
-9. "/posts/[postID]" = View a Post
-10. "/user/drafts/[draftID]" => View a particular draft
-11. "user/drafts" = View all drafts
-12. "/user/posts" = View all user's posts
-13. "/user/[userID]" = Profile page to see your profile or others'(bio, posts, karma , etc.)
-14. "/settings" = Setting page
-15. "/notification" = Notification Page
-16. "/search?q=..." = central search for posts/communities.
-17. "/communities/[communityID]/settings" = Community Settings Page for moderators/admins to manage community. (future)
-18. "/user/saved" = Saved Posts of the user
-19. "/user/myProfile" = To view my profile info like total karma, upvotes, downvotes, no of contribution
-20. "/moderation/[communityID]" = Moderation Tools(future)
+## License
 
-## Database Design Overview
+This project is licensed under the MIT License.
+See the LICENSE file for details.
 
-The database is divided into three categories:
+## Project Link
 
-- **Pure Database Tables** → store main entities (users, posts, comments, etc.)
-- **Interaction Tables** → store user interactions (votes, joins, etc.)
-- **Preference Tables** -> store user specific actions (saving post, blocking user(future), hiding posts(future))
+https://discusso-gules.vercel.app/
 
-Below is the high-level schema visualization:
+## Author
 
-### Pure database entities overview:
+**Prakhar Pathak**
 
-1. **User**: It will consist of
-
-```
-{
-    id:Int, //userId (Primary Key)
-    createdAt:Date_time, //When this user joined discusso
-    userName: String,
-    email: String,
-    password: String,
-    Gender: String?,
-    DisplayName: String?,
-    userIcon: String?, //Profile photo of a user
-    userLocation: String/JSON, //Not decided whether to store json or string. I mean whether to store lat-lang or normal address.
-}
-
-```
-
-2. **Community**:
-
-```
-{
-    id: Int, //Primary Key
-    createdAt: DateTime,
-    creatorId: Int, //(Foreign Key to user Table) which user founded this community
-    name: STring,
-    logo: String?,
-    title: String,
-    description: String?
-}
-```
-
-3. **Post**:
-
-```
-{
-    id: Int, //(Primary Key)
-    createdAt: DateTime,
-    communityId: Int, //(Foreign Key) this post is of which community
-    userId: Int, //(Foreign Key to user Table) which user created this post
-    title: String,
-    description: String?,
-      media JSONB, -- e.g. { "images": [...], "video": "url", "links": [...] }
-// First version of my app won't fully support video till now. It may get broken!!!
-}
-```
-
-4. **Comments**:
-
-```
-{
-    id: Int, //(Primary Key)
-    createdAt:DateTime,
-    postId: Int, //(Foreign key to post table) This comment is on which post
-    userId: Int, //(Foreign key to user table) This comment is done by which user
-    parentCommentId: Int?, //Is it a direct comment to post, or is it a reply to another comment.
-    content: String
-}
-```
-
-5. **Draft**: **A user can't have more than 10 drafts**. In the first version of my app, it is not supporting to save media or links in draft
-
-```
-{
-    id: Int, //(Primary key)
-    lastEditedAt: Date_time,
-    userId: Int, //(Foreign key to user table) which user's draft is this
-    selectedCommunityId: Int?, //(Foreign key to community table) does user before saving to draft selected any community to do the post?
-    title: String,
-    body: String?
-}
-```
-
-### Interaction database entities overview:
-
-1. **CommunityInteraction** : In the first version of app, only interaction between a user and an existing community is a user can join a community or leave it. In upcoming versions improvement whill be there.
-
-{
-id: Int, //(Primary Key)
-joinedAt: Date_time, // when user joined this community
-communityId: Int, //(Foreign Key to community table)
-userId: Int, // (Foreign key to user table)
-isMember: Boolean, //Default True
-}
-
-2. **PostInteraction**: User whenther upvoted or downvoted a post. If there is 1 in upvote column that means user has upvoted and -1 means user has not upvoted and same for downvote.
-
-```
-{
-    id: Int,// (PK)
-    lastUpdatedAt:Date_time, //Last updation of this interaction
-    postId: Int, //(FK to post database)
-    userId: Int, //(FK to user table)
-    vote: Int //Either 1 for upvote and -1 for downvote
-
-}
-```
-
-3. **CommentInteraction**: Same as PostInteraction table.
-
-```
-{
-    id: INt,//PK
-    lastUpdatedAt: Date_Time,
-    commentId: Int, //(FK to comments table)
-    userId: Int, //(FK to user table)
-    vote: Int //Either 1 for upvote and -1 for downvote
-}
-```
-
-### Preference database entities overview:
-
-2. **PostPreferences**: This table stores user-specific preferences on posts. Only the user can see these settings.
-
-```
-{
-    userId: Int, // FK and Primary Key
-    postId: Int, // FK and Primary Key
-
-    isSaved: Boolean, // default false
-    isHidden: Boolean, // future feature
-    isReported: Boolean, // future feature
-
-    lastUpdatedAt: DateTime
-}
-
-```
+- Email: prakharpathak192@gmail.com
+- Portfolio: https://phantomsynth.com/
+- LinkedIn: https://www.linkedin.com/in/prince-pandey-4a58031ba
+- GitHub: https://github.com/octoprakhar
