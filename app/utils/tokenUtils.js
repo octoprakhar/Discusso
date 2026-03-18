@@ -3,8 +3,8 @@ import jsonwebtoken from "jsonwebtoken";
 
 const encoder = new TextEncoder();
 
-const Refresh_Secret = process.env.REFRESH_TOKEN_SECRET;
-const Access_Secret = process.env.ACCESS_TOKEN_SECRET;
+const Refresh_Secret = process.env.REFRESH_TOKEN_SECRET || "placeholder";
+const Access_Secret = process.env.ACCESS_TOKEN_SECRET || "placeholder";
 
 export async function generateRefreshToken(userId) {
   const payload = { userId };
