@@ -1,5 +1,6 @@
+const baseUrl = process.env.ML_URL || "http://fastapi-backend:8000";
 export async function triggerTagGeneration({ postId, title, description }) {
-  fetch(process.env.ML_URL || "https://placeholder.com:8000" + "/tag", {
+  fetch(`${baseUrl}/tag`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -16,22 +17,19 @@ export async function triggerTagGeneration({ postId, title, description }) {
 }
 
 export async function triggerPostQuality({ postId, karma, title, body }) {
-  fetch(
-    process.env.ML_URL || "https://placeholder.com:8000" + "/post-quality",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-internal-secret": process.env.ML_INTERNAL_SECRET || "placeholder",
-      },
-      body: JSON.stringify({
-        postId,
-        karma,
-        title,
-        body,
-      }),
+  fetch(`${baseUrl}/post-quality`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-internal-secret": process.env.ML_INTERNAL_SECRET || "placeholder",
     },
-  ).catch((err) => {
+    body: JSON.stringify({
+      postId,
+      karma,
+      title,
+      body,
+    }),
+  }).catch((err) => {
     console.error("ML post quality failed to start:", err);
   });
 }
