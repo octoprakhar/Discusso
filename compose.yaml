@@ -1,0 +1,29 @@
+services:
+  # --- THE BACKEND SERVICE ---
+  fastapi-backend:
+    image: discusso-backend
+    container_name: discusso-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./discusso-ml/.env
+    networks:
+      - discusso-net
+
+  # --- THE FRONTEND SERVICE ---
+  nextjs-frontend:
+    image: discusso-frontend
+    container_name: discusso-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./discusso/.env.local
+    networks:
+      - discusso-net
+    depends_on:
+      - fastapi-backend
+
+# --- THE SHARED NETWORK ---
+networks:
+  discusso-net:
+    driver: bridge

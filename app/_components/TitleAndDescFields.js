@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { createPost } from "../_libs/actions";
 import SmallSpinner from "./SmallSpinner";
 import { useCreatePostContext } from "../context/PostContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 function TitleAndDescFields() {
   const router = useRouter();
@@ -36,6 +37,7 @@ function TitleAndDescFields() {
   const searchParams = useSearchParams();
   const postType = searchParams.get("postType");
   const communityId = searchParams.get("com") || "";
+  const queryClient = useQueryClient();
 
   // const [mediaFiles, setMediaFiles] = useState([]);
   // const [isLoading, setIsLoading] = useState(false);
@@ -93,6 +95,13 @@ function TitleAndDescFields() {
       const result = await createPost(formData);
       if (result.success) {
         toast.success("Successfully created post!");
+
+        // Wait 3 seconds, then invalidate cache
+        setTimeout(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["posts"],
+          });
+        }, 3000);
         router.push("/");
       } else {
         toast.error(result.error);

@@ -28,7 +28,7 @@ jest.mock("@/app/_libs/actions", () => ({
 function renderWithQueryClient(ui) {
   const queryClient = new QueryClient();
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
   );
 }
 
@@ -225,7 +225,7 @@ describe("Post Component — Upvote/Downvote", () => {
     });
 
     renderWithQueryClient(
-      <Post post={post} community={community} toShowBookMarkButton={true} />
+      <Post post={post} community={community} toShowBookMarkButton={true} />,
     );
 
     const saveButton = screen.getByTestId("save-button");
@@ -254,7 +254,7 @@ describe("Post Component — Upvote/Downvote", () => {
     });
 
     renderWithQueryClient(
-      <Post post={post} community={community} toShowBookMarkButton={true} />
+      <Post post={post} community={community} toShowBookMarkButton={true} />,
     );
 
     const saveButton = screen.getByTestId("unsave-button");

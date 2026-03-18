@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 import { togglePostPreferences, togglePostVote } from "../_libs/actions";
 import { useQueryClient } from "@tanstack/react-query";
 import SmallSpinner from "./SmallSpinner";
+import TagShower from "./TagShower";
 /*But each post has something common that 
 from which community it is, time(how much time ago), number of upvotes, number of downvote, community image,
 I think I will ask these things in the parent component only
@@ -309,6 +310,10 @@ function Post({
         </header>
 
         <main>
+          {/* tags */}
+          {updatedPost.tags && updatedPost.tags.length > 0 ? (
+            <TagShower tags={updatedPost.tags} />
+          ) : null}
           {/* Title */}
           <h1 className="text-lg font-bold">{updatedPost.title}</h1>
           {/* Children */}

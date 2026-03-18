@@ -20,6 +20,7 @@ import {
   getPostWithFullData,
   getSearchResults,
   getSearchSuggestions,
+  getUserKarma,
   inserNewDraft,
   insertNewComment,
   insertNewCommunity,
@@ -36,6 +37,7 @@ import {
   userInteractionWithComment,
   userInteractionWithPost,
 } from "./data-service";
+import { triggerPostQuality, triggerTagGeneration } from "../utils/ml_utils";
 
 export async function registerNewUser(formData) {
   //Validate the data points
@@ -314,7 +316,16 @@ export async function createPost(formData) {
       links: linksObject,
     };
 
-    await insertPost(post);
+    const data = await insertPost(post);
+    const postId = data[0].id;
+    // console.log("🎉 Created post data", data);
+
+    //I don't need to wait till tag generation
+
+    const karma = await getUserKarma(userId);
+
+    triggerTagGeneration({ postId, title, description });
+    triggerPostQuality({ postId, title, karma, body: description });
   } catch (err) {
     return { error: err.message };
   }
@@ -348,10 +359,10 @@ export async function getAllPostsAction(formData) {
     const rawPosts = await getPostsWithFullData(
       userId,
       Number(limit),
-      Number(offset)
+      Number(offset),
     );
 
-    // console.log("Raw RPC posts:", rawPosts);
+    console.log("Raw RPC posts:", rawPosts);
 
     // Transform into camelCase and split
     const enrichedPosts = rawPosts.map((p) => ({
@@ -362,6 +373,7 @@ export async function getAllPostsAction(formData) {
       links: p.links,
       createdAt: userId ? p.created_at : p.createdAt,
       userId: userId ? p.user_id : p.userId,
+      tags: p.tag ? p.tag.split(",") : [],
 
       noOfUpvotes: userId ? p.noofupvotes : p.noOfUpvotes,
       noOfDownvotes: userId ? p.noofdownvotes : p.noOfDownvotes,
@@ -429,7 +441,7 @@ export async function togglePostVote(formData) {
 
     const userExistingInteraction = await userInteractionWithPost(
       userId,
-      postId
+      postId,
     );
 
     //For upvote
@@ -494,7 +506,7 @@ export async function getSinglePostDataWithComments(formData) {
 
     const rawData = await getPostDataWithCommentsForSignedInUser(
       userId,
-      postId
+      postId,
     );
 
     // console.log(`Got raw data as : \n`, rawData);
@@ -550,7 +562,7 @@ export async function toggleCommunityJoinAction(formData) {
     const [data] = await toggleCommunityJoin(
       userId,
       communityId,
-      hasUserAlreadyJoin
+      hasUserAlreadyJoin,
     );
 
     // console.log(`🧐 ServerAction: got data as \n`, data);
@@ -599,7 +611,7 @@ export async function insertNewCommentAction(formData) {
       userId,
       parentCommentId,
       postId,
-      content
+      content,
     );
 
     // console.log(
@@ -640,7 +652,7 @@ export async function toggleCommentVote(formData) {
 
     const userExistingInteraction = await userInteractionWithComment(
       userId,
-      commentId
+      commentId,
     );
 
     //For upvote
@@ -773,7 +785,7 @@ export async function getSavedPostsAction() {
   } catch (err) {
     console.error(
       "💣 ServerAction.js: error occured while fetching saved posts.",
-      err
+      err,
     );
     return { error: "Error while fetching saved post." };
   }
@@ -797,7 +809,7 @@ export async function updateUserDataAction(formData) {
   } catch (err) {
     console.error(
       "💣action.js: Got error in updateUserDataAction function as: ",
-      err
+      err,
     );
     return { error: "Something went wrong please try again later." };
   }
