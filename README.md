@@ -8,6 +8,8 @@ Reddit-style discussion platform built with **Next.js + Supabase**, featuring JW
 
 Discusso enables users to **create posts, join communities, vote, comment, and explore trending content**. Built with Next.js and Supabase with custom JWT auth, and future ML enhancements like content recommendations, toxicity detection, and semantic search.
 
+I made the backend of it too.
+
 ## Preview
 
 ![Home](./public/screenshots/home-page-1.png)
