@@ -1,7 +1,7 @@
 services:
   # --- THE BACKEND SERVICE ---
   fastapi-backend:
-    image: discusso-backend
+    image: prakhar869/discusso-frontend:latest
     container_name: discusso-api
     ports:
       - "8000:8000"
@@ -12,7 +12,7 @@ services:
 
   # --- THE FRONTEND SERVICE ---
   nextjs-frontend:
-    image: discusso-frontend
+    image: prakhar869/discusso-frontend:latest
     container_name: discusso-web
     ports:
       - "3000:3000"
