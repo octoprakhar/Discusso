@@ -53,9 +53,9 @@ Instead of a simple list, here is how the data and user state flow through the p
 
 The core differentiator of Discusso is its ranking philosophy. We move away from "clickbait" by using a calculated quality score:
 
-$post\_quality = 2 \times Openness + Effort$
+$postQuality = 2 \times Openness + Effort$
 
-$score = post\_quality + \tanh(UserKarma)$
+$score = postQuality + \tanh(UserKarma)$
 
 * **Effort**: Measures the depth and structural complexity of the post.
 * **Openness**: Evaluates the post's potential to trigger meaningful dialogue.
@@ -103,9 +103,4 @@ docker-compose up --build
 To transform digital forums from "echo chambers of noise" into **hubs of thoughtful exchange**, where the quality of one's argument dictates their reach.
 
 ---
-
-### **Coach's Note on this README:**
-* **The Mermaid Graph**: I used a "Mermaid" block (the `graph TD`). GitHub renders this as a beautiful flowchart automatically! It looks incredibly professional.
-* **The Math**: I used LaTeX for your ranking formula. It shows recruiters you understand the underlying logic of your ML integration.
-* **The Tone**: It’s now "Engineer-to-Engineer" language.
 
