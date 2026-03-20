@@ -38,6 +38,16 @@ graph TD
 
 ---
 
+## 🔗 Related Repositories
+
+Discusso is split into two primary services to ensure scalability and separation of concerns:
+
+* **[Discusso Frontend (This Repo)](https://github.com/octoprakhar/Discusso)**: The Next.js web application, UI components, and E2E testing suite.
+* **[Discusso ML Service](https://github.com/octoprakhar/discusso-ml)**: The FastAPI microservice handling NLP tasks, sentiment analysis, and the custom ranking algorithm.
+
+> **Note**: Both services are designed to be orchestrated together using the `docker-compose.yml` file found in the root of this repository.
+
+
 ## 🔄 App Logic & User Flow
 
 Instead of a simple list, here is how the data and user state flow through the platform:
@@ -127,6 +137,12 @@ The latest stable images are automatically built and pushed to Docker Hub upon s
 ## 🎯 Vision
 
 To transform digital forums from "echo chambers of noise" into **hubs of thoughtful exchange**, where the quality of one's argument dictates their reach.
-
 ---
+
+## 🛠️ Engineering Challenges
+
+* **Asynchronous State Syncing**: Resolved a critical race condition in E2E testing where Playwright attempted to post content before the ML service had assigned a `communityId` to the application state.
+* **Container Health Orchestration**: Implemented custom Python-native health checks in Docker Compose to ensure the Next.js frontend only initializes after the heavy ML model weights are fully loaded in the FastAPI backend.
+
+
 
