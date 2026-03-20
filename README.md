@@ -1,3 +1,4 @@
+![E2E Tests](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/actions/workflows/deploy.yml/badge.svg)
 # Discusso: Where Conversations Find a Home
 
 ## TL;DR
