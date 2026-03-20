@@ -1,133 +1,110 @@
+## 📌 Discusso — ML-Powered Discussion Platform
+
 ![E2E Tests](https://github.com/octoprakhar/Discusso/actions/workflows/deploy.yml/badge.svg)
-# Discusso: Where Conversations Find a Home
 
-## TL;DR
+Discusso is a high-performance, full-stack discussion platform engineered to prioritize **substance over noise**. By integrating custom Machine Learning models into the ranking algorithm, Discusso evaluates content based on semantic quality, intellectual effort, and discussion potential rather than simple engagement metrics.
 
-Reddit-style discussion platform built with **Next.js + Supabase**, featuring JWT authentication, communities, posts with drafts, voting, comments, search, and a future ML layer for personalized feeds and semantic search.
 
-## Overview
 
-Discusso enables users to **create posts, join communities, vote, comment, and explore trending content**. Built with Next.js and Supabase with custom JWT auth, and future ML enhancements like content recommendations, toxicity detection, and semantic search.
+### 🔗 [Live Demo](https://discusso-gules.vercel.app/) | [Author Portfolio](https://phantomsynth.com/)
 
-I made the backend of it too.
+---
 
-## Preview
+## 🏗️ System Architecture
 
-![Home](./public/screenshots/home-page-1.png)
-![Post](./public/screenshots/post-page-1.png)
-![Community](./public/screenshots/community.png)
+Discusso is built as a microservice-oriented architecture to separate concerns between user interaction, data persistence, and heavy ML computation.
 
-## Live Demo
+```mermaid
+graph TD
+    A[Next.js Frontend] -->|Custom JWT Auth| B[Supabase / PostgreSQL]
+    A -->|Asynchronous Requests| C[FastAPI ML Service]
+    C -->|Feature Extraction| D[Transformer Models]
+    D -->|Quality Scores| B
+    B -->|Aggregated Data| A
+```
 
-![Demo](./public/screenshots/demo-video.gif)
+* **Frontend**: Next.js (App Router) with TailwindCSS for a responsive, stateful UI.
+* **Database**: Supabase (PostgreSQL) utilizing RPCs and JSONB aggregation for optimized data retrieval.
+* **ML Service**: FastAPI-based microservice handling semantic analysis and automated tagging.
+* **DevOps**: Dockerized environment with a GitHub Actions CI/CD "Quality Gate."
 
-## Core Features
+---
 
-**Authentication**
+## 🔄 App Logic & User Flow
 
-- JWT-based login, session retention, profile management
+Instead of a simple list, here is how the data and user state flow through the platform:
 
-**Communities**
+**1. Discovery Phase**
+* **Guest**: Browses high-quality feeds ranked by the "Effort + Openness" algorithm.
+* **Search**: Utilizes PostgreSQL text-search (with planned semantic search integration).
 
-- Create, join, and explore communities
+**2. Engagement Phase (Authenticated)**
+* **Identity**: Hybrid session management (Access + Refresh tokens) via custom JWT logic.
+* **Participation**: Users join communities, vote on content, and engage in threaded comments.
 
-**Posts & Feeds**
+**3. Content Creation & ML Analysis**
+* **Drafting**: Markdown-supported editor with local save states.
+* **Processing**: On submission, the **ML Service** intercepts the post to calculate an **Effort Score** and an **Openness Score**.
+* **Tagging**: NLP models automatically generate semantic tags (e.g., `Productivity`, `Work-from-home`) based on context.
 
-- Markdown editor, media uploads, tags, drafts
-- Dynamic feeds: Home, Popular, Explore
+---
 
-**Interactions**
+## 🧠 The Intelligence Layer (ML Integration)
 
-- Upvote/downvote, comments, bookmarks
+The core differentiator of Discusso is its ranking philosophy. We move away from "clickbait" by using a calculated quality score:
 
-**Search**
+$$post_quality = 2 \times Openness + Effort
+$$score = post_quality + \tanh(User\,Karma)$$
 
-- Posts & communities
+* **Effort**: Measures the depth and structural complexity of the post.
+* **Openness**: Evaluates the post's potential to trigger meaningful dialogue.
+* **Karma Tie-breaker**: User reputation only influences the ranking as a secondary factor, ensuring new, high-quality voices are heard.
 
-**Gamification**
+---
 
-- Karma unlocks features
+## 🧪 Engineering Excellence & Testing
 
-## App Flow
+To ensure reliability in a distributed environment, Discusso employs a multi-layered testing strategy:
 
-- **Guest**: browse content, search; login required to interact
-- **User**: create posts/drafts, vote, comment, join communities
-- **Admin (future)**: manage reports, moderation
+* **End-to-End (E2E)**: Powered by **Playwright**. We simulate real user journeys, including login, community selection, and post creation with a wait-state for ML tag generation.
+* **Unit Testing**: Jest handles component-level logic and utility functions.
+* **CI/CD Pipeline**: 
+    1.  Push to `main` triggers a GitHub Action.
+    2.  Spins up a Docker Compose environment (Frontend + Backend).
+    3.  Runs Playwright suite against the live containers.
+    4.  **Quality Gate**: Only if tests pass is the new Frontend image pushed to Docker Hub.
 
-## Tech Stack
+---
 
-- **Frontend & Backend**: Next.js + TailwindCSS
-- **Database**: Supabase(Postgres)
-- **Authentication**: Custom JWT (via Next.js API routes)
-- **ML/DL Models**: HuggingFace/ PyTorch / Tesorflow (later integration)
-- Deployment: Vercel
+## 🐳 Development & Deployment
 
-## System Architecture
+### Run Locally (Docker)
+```bash
+# Clone the repository
+git clone https://github.com/octoprakhar/Discusso.git
 
-Client (Next.js) --> Next.js API Routes --> Supabase DB/Storage
-|
-v
-Future ML Microservices
+# Setup Environment Variables
+# Create .env.local with SUPABASE_URL, SUPABASE_ANON_KEY, etc.
 
-## Folder Structure
+# Spin up the full stack
+docker-compose up --build
+```
 
-- /app → Pages & App Router
-- /\_components → Reusable components
-- /\_hooks → Custom hooks
-- /\_libs → API calls
-- /\_context → Context API
-- /utils → Utility functions
-- /public → Static assets
-- /\_tests → Test cases
+### Tech Stack Summary
+* **Frontend**: Next.js, TailwindCSS, Playwright
+* **Backend**: FastAPI, PyTorch, Sentence-Transformers
+* **Infrastructure**: Docker, GitHub Actions, Supabase, Vercel
 
-## Development Roadmap
+---
 
-- **Phase 1**: UI Skeleton(Completed)
-- **Phase 2**: Authentication & Profiles(Completed)
-- **Phase 3**: Core Features (posts, communities, votes)(Completed)
-- **Phase 4**: ML Features(Upcoming)
+## 🎯 Vision
 
-## How to Run Locally
+To transform digital forums from "echo chambers of noise" into **hubs of thoughtful exchange**, where the quality of one's argument dictates their reach.
 
-1. Clone the project
-2. Install dependencies  
-   npm install
+---
 
-3. Create `.env.local` and add:
+### **Coach's Note on this README:**
+* **The Mermaid Graph**: I used a "Mermaid" block (the `graph TD`). GitHub renders this as a beautiful flowchart automatically! It looks incredibly professional.
+* **The Math**: I used LaTeX for your ranking formula. It shows recruiters you understand the underlying logic of your ML integration.
+* **The Tone**: It’s now "Engineer-to-Engineer" language.
 
-- SUPABASE_URL=your-url
-- SUPABASE_ANON_KEY=your-anon-key
-- SUPABASE_SERVICE_ROLE_KEY=service-role-key
-- REFRESH_TOKEN_SECRET=your-secret
-- ACCESS_TOKEN_SECRET=your-secret
-
-⚠ Do NOT share your Supabase service role key.
-
-4. Start the app  
-   npm run dev
-
-## Future Enhancements
-
-- Realtime comments
-- Live notifications
-- Advanced ML models for ranking
-- Community moderation tools
-- Mobile app (React Native)
-
-## License
-
-This project is licensed under the MIT License.
-See the LICENSE file for details.
-
-## Project Link
-
-https://discusso-gules.vercel.app/
-
-## Author
-
-**Prakhar Pathak**
-
-- Email: prakharpathak192@gmail.com
-- Portfolio: https://phantomsynth.com/
-- LinkedIn: https://www.linkedin.com/in/prince-pandey-4a58031ba
-- GitHub: https://github.com/octoprakhar
