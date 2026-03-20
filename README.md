@@ -53,8 +53,8 @@ Instead of a simple list, here is how the data and user state flow through the p
 
 The core differentiator of Discusso is its ranking philosophy. We move away from "clickbait" by using a calculated quality score:
 
-$$post_quality = 2 \times Openness + Effort
-$$score = post_quality + \tanh(User\,Karma)$$
+$$post-quality = 2 \times Openness + Effort
+$$score = post-quality + \tanh(UserKarma)
 
 * **Effort**: Measures the depth and structural complexity of the post.
 * **Openness**: Evaluates the post's potential to trigger meaningful dialogue.
