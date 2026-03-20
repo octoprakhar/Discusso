@@ -7,8 +7,16 @@ Discusso is a high-performance, full-stack discussion platform engineered to pri
 
 
 ### 🔗 [Live Demo](https://discusso-gules.vercel.app/) | [Author Portfolio](https://phantomsynth.com/)
+> **Note**: The ML microservice is excluded from the live production URL to optimize hosting costs. Full system integration is verified via the automated Playwright suite in the CI/CD pipeline.
+
+## 📸 Visual Demonstration
+
+| E2E Test (Playwright + ML) | User Dashboard | Community Interface |
+| :--- | :--- | :--- |
+| ![Playwright Demo](./public/screenshots/e2e-demo.gif) | ![Home](./public/screenshots/home-page.png) | ![Community](./public/screenshots/community.png) |
 
 ---
+
 
 ## 🏗️ System Architecture
 
@@ -90,6 +98,24 @@ git clone https://github.com/octoprakhar/Discusso.git
 # Spin up the full stack
 docker-compose up --build
 ```
+
+
+## 🛠️ Configuration & Setup
+
+### Environment Variables
+To run this project locally, create a `.env.local` file in the `discusso/` directory with the following keys:
+
+| Variable | Description |
+| :--- | :--- |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_API_URL` | Points to the FastAPI service (`http://localhost:8000`) |
+| `ACCESS_TOKEN_SECRET` | Secret for JWT signing |
+
+### Docker Hub Images
+The latest stable images are automatically built and pushed to Docker Hub upon successful CI/CD runs:
+* **Frontend**: `prakhar869/discusso-frontend:latest`
+* **Backend**: `prakhar869/discusso-backend:latest`
+---
 
 ### Tech Stack Summary
 * **Frontend**: Next.js, TailwindCSS, Playwright
