@@ -1,27 +1,42 @@
 services:
   # --- THE BACKEND SERVICE ---
   fastapi-backend:
-    image: prakhar869/discusso-frontend:latest
+    image: prakhar869/discusso-backend:latest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"] # Adjust to your health route
+      interval: 10s
+      timeout: 5s
+      retries: 5
     container_name: discusso-api
     ports:
       - "8000:8000"
-    env_file:
-      - ./discusso-ml/.env
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - ML_INTERNAL_SECRET=${ML_INTERNAL_SECRET}
     networks:
       - discusso-net
 
   # --- THE FRONTEND SERVICE ---
   nextjs-frontend:
-    image: prakhar869/discusso-frontend:latest
+    build: .
     container_name: discusso-web
     ports:
       - "3000:3000"
-    env_file:
-      - ./discusso/.env.local
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - ML_INTERNAL_SECRET=${ML_INTERNAL_SECRET}
+      - ML_URL=${ML_URL}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
     networks:
       - discusso-net
     depends_on:
-      - fastapi-backend
+      fastapi-backend:
+        condition: service_healthy
 
 # --- THE SHARED NETWORK ---
 networks:
