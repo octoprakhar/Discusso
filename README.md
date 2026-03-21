@@ -13,9 +13,7 @@ Discusso is a high-performance, full-stack discussion platform engineered to pri
 ### 🧪 E2E Integration: Playwright + ML Ranking
 
 <p align="center">
-  <video src="./public/sample_video.webm" width="100%" controls autoplay muted loop>
-    Your browser does not support the video tag.
-  </video>
+  <img src="./public/sample_video.gif" alt="Discusso E2E Demo" width="100%">
 </p>
 
 > **Note**: This demonstration shows the "Golden Run" where the robot creates a post, waits for ML analysis, and verifies the ranking position in the feed.
