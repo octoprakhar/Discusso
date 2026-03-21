@@ -1,132 +1,148 @@
-# Discusso: Where Conversations Find a Home
+## 📌 Discusso — ML-Powered Discussion Platform
 
-## TL;DR
+![E2E Tests](https://github.com/octoprakhar/Discusso/actions/workflows/deploy.yml/badge.svg)
 
-Reddit-style discussion platform built with **Next.js + Supabase**, featuring JWT authentication, communities, posts with drafts, voting, comments, search, and a future ML layer for personalized feeds and semantic search.
+Discusso is a high-performance, full-stack discussion platform engineered to prioritize **substance over noise**. By integrating custom Machine Learning models into the ranking algorithm, Discusso evaluates content based on semantic quality, intellectual effort, and discussion potential rather than simple engagement metrics.
 
-## Overview
 
-Discusso enables users to **create posts, join communities, vote, comment, and explore trending content**. Built with Next.js and Supabase with custom JWT auth, and future ML enhancements like content recommendations, toxicity detection, and semantic search.
 
-I made the backend of it too.
+### 🔗 [Live Demo](https://discusso-gules.vercel.app/) | [Author Portfolio](https://phantomsynth.com/)
+> **Note**: The ML microservice is excluded from the live production URL to optimize hosting costs. Full system integration is verified via the automated Playwright suite in the CI/CD pipeline.
 
-## Preview
+## 📸 Visual Demonstration
 
-![Home](./public/screenshots/home-page-1.png)
-![Post](./public/screenshots/post-page-1.png)
-![Community](./public/screenshots/community.png)
+| E2E Test (Playwright + ML) | User Dashboard | Community Interface |
+| :--- | :--- | :--- |
+| ![Playwright Demo](./public/screenshots/e2e-demo.gif) | ![Home](./public/screenshots/home-page.png) | ![Community](./public/screenshots/community.png) |
 
-## Live Demo
+---
 
-![Demo](./public/screenshots/demo-video.gif)
 
-## Core Features
+## 🏗️ System Architecture
 
-**Authentication**
+Discusso is built as a microservice-oriented architecture to separate concerns between user interaction, data persistence, and heavy ML computation.
 
-- JWT-based login, session retention, profile management
+```mermaid
+graph TD
+    A[Next.js Frontend] -->|Custom JWT Auth| B[Supabase / PostgreSQL]
+    A -->|Asynchronous Requests| C[FastAPI ML Service]
+    C -->|Feature Extraction| D[Transformer Models]
+    D -->|Quality Scores| B
+    B -->|Aggregated Data| A
+```
 
-**Communities**
+* **Frontend**: Next.js (App Router) with TailwindCSS for a responsive, stateful UI.
+* **Database**: Supabase (PostgreSQL) utilizing RPCs and JSONB aggregation for optimized data retrieval.
+* **ML Service**: FastAPI-based microservice handling semantic analysis and automated tagging.
+* **DevOps**: Dockerized environment with a GitHub Actions CI/CD "Quality Gate."
 
-- Create, join, and explore communities
+---
 
-**Posts & Feeds**
+## 🔗 Related Repositories
 
-- Markdown editor, media uploads, tags, drafts
-- Dynamic feeds: Home, Popular, Explore
+Discusso is split into two primary services to ensure scalability and separation of concerns:
 
-**Interactions**
+* **[Discusso Frontend (This Repo)](https://github.com/octoprakhar/Discusso)**: The Next.js web application, UI components, and E2E testing suite.
+* **[Discusso ML Service](https://github.com/octoprakhar/discusso-ml)**: The FastAPI microservice handling NLP tasks, sentiment analysis, and the custom ranking algorithm.
 
-- Upvote/downvote, comments, bookmarks
+> **Note**: Both services are designed to be orchestrated together using the `docker-compose.yml` file found in the root of this repository.
 
-**Search**
 
-- Posts & communities
+## 🔄 App Logic & User Flow
 
-**Gamification**
+Instead of a simple list, here is how the data and user state flow through the platform:
 
-- Karma unlocks features
+**1. Discovery Phase**
+* **Guest**: Browses high-quality feeds ranked by the "Effort + Openness" algorithm.
+* **Search**: Utilizes PostgreSQL text-search (with planned semantic search integration).
 
-## App Flow
+**2. Engagement Phase (Authenticated)**
+* **Identity**: Hybrid session management (Access + Refresh tokens) via custom JWT logic.
+* **Participation**: Users join communities, vote on content, and engage in threaded comments.
 
-- **Guest**: browse content, search; login required to interact
-- **User**: create posts/drafts, vote, comment, join communities
-- **Admin (future)**: manage reports, moderation
+**3. Content Creation & ML Analysis**
+* **Drafting**: Markdown-supported editor with local save states.
+* **Processing**: On submission, the **ML Service** intercepts the post to calculate an **Effort Score** and an **Openness Score**.
+* **Tagging**: NLP models automatically generate semantic tags (e.g., `Productivity`, `Work-from-home`) based on context.
 
-## Tech Stack
+---
 
-- **Frontend & Backend**: Next.js + TailwindCSS
-- **Database**: Supabase(Postgres)
-- **Authentication**: Custom JWT (via Next.js API routes)
-- **ML/DL Models**: HuggingFace/ PyTorch / Tesorflow (later integration)
-- Deployment: Vercel
+## 🧠 The Intelligence Layer (ML Integration)
 
-## System Architecture
+The core differentiator of Discusso is its ranking philosophy. We move away from "clickbait" by using a calculated quality score:
 
-Client (Next.js) --> Next.js API Routes --> Supabase DB/Storage
-|
-v
-Future ML Microservices
+$postQuality = 2 \times Openness + Effort$
 
-## Folder Structure
+$score = postQuality + \tanh(UserKarma)$
 
-- /app → Pages & App Router
-- /\_components → Reusable components
-- /\_hooks → Custom hooks
-- /\_libs → API calls
-- /\_context → Context API
-- /utils → Utility functions
-- /public → Static assets
-- /\_tests → Test cases
+* **Effort**: Measures the depth and structural complexity of the post.
+* **Openness**: Evaluates the post's potential to trigger meaningful dialogue.
+* **Karma Tie-breaker**: User reputation only influences the ranking as a secondary factor, ensuring new, high-quality voices are heard.
 
-## Development Roadmap
+---
 
-- **Phase 1**: UI Skeleton(Completed)
-- **Phase 2**: Authentication & Profiles(Completed)
-- **Phase 3**: Core Features (posts, communities, votes)(Completed)
-- **Phase 4**: ML Features(Upcoming)
+## 🧪 Engineering Excellence & Testing
 
-## How to Run Locally
+To ensure reliability in a distributed environment, Discusso employs a multi-layered testing strategy:
 
-1. Clone the project
-2. Install dependencies  
-   npm install
+* **End-to-End (E2E)**: Powered by **Playwright**. We simulate real user journeys, including login, community selection, and post creation with a wait-state for ML tag generation.
+* **Unit Testing**: Jest handles component-level logic and utility functions.
+* **CI/CD Pipeline**: 
+    1.  Push to `main` triggers a GitHub Action.
+    2.  Spins up a Docker Compose environment (Frontend + Backend).
+    3.  Runs Playwright suite against the live containers.
+    4.  **Quality Gate**: Only if tests pass is the new Frontend image pushed to Docker Hub.
 
-3. Create `.env.local` and add:
+---
 
-- SUPABASE_URL=your-url
-- SUPABASE_ANON_KEY=your-anon-key
-- SUPABASE_SERVICE_ROLE_KEY=service-role-key
-- REFRESH_TOKEN_SECRET=your-secret
-- ACCESS_TOKEN_SECRET=your-secret
+## 🐳 Development & Deployment
 
-⚠ Do NOT share your Supabase service role key.
+### Run Locally (Docker)
+```bash
+# Clone the repository
+git clone https://github.com/octoprakhar/Discusso.git
 
-4. Start the app  
-   npm run dev
+# Setup Environment Variables
+# Create .env.local with SUPABASE_URL, SUPABASE_ANON_KEY, etc.
 
-## Future Enhancements
+# Spin up the full stack
+docker-compose up --build
+```
 
-- Realtime comments
-- Live notifications
-- Advanced ML models for ranking
-- Community moderation tools
-- Mobile app (React Native)
 
-## License
+## 🛠️ Configuration & Setup
 
-This project is licensed under the MIT License.
-See the LICENSE file for details.
+### Environment Variables
+To run this project locally, create a `.env.local` file in the `discusso/` directory with the following keys:
 
-## Project Link
+| Variable | Description |
+| :--- | :--- |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `NEXT_PUBLIC_API_URL` | Points to the FastAPI service (`http://localhost:8000`) |
+| `ACCESS_TOKEN_SECRET` | Secret for JWT signing |
 
-https://discusso-gules.vercel.app/
+### Docker Hub Images
+The latest stable images are automatically built and pushed to Docker Hub upon successful CI/CD runs:
+* **Frontend**: `prakhar869/discusso-frontend:latest`
+* **Backend**: `prakhar869/discusso-backend:latest`
+---
 
-## Author
+### Tech Stack Summary
+* **Frontend**: Next.js, TailwindCSS, Playwright
+* **Backend**: FastAPI, PyTorch, Sentence-Transformers
+* **Infrastructure**: Docker, GitHub Actions, Supabase, Vercel
 
-**Prakhar Pathak**
+---
 
-- Email: prakharpathak192@gmail.com
-- Portfolio: https://phantomsynth.com/
-- LinkedIn: https://www.linkedin.com/in/prince-pandey-4a58031ba
-- GitHub: https://github.com/octoprakhar
+## 🎯 Vision
+
+To transform digital forums from "echo chambers of noise" into **hubs of thoughtful exchange**, where the quality of one's argument dictates their reach.
+---
+
+## 🛠️ Engineering Challenges
+
+* **Asynchronous State Syncing**: Resolved a critical race condition in E2E testing where Playwright attempted to post content before the ML service had assigned a `communityId` to the application state.
+* **Container Health Orchestration**: Implemented custom Python-native health checks in Docker Compose to ensure the Next.js frontend only initializes after the heavy ML model weights are fully loaded in the FastAPI backend.
+
+
+
