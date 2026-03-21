@@ -13,7 +13,7 @@ Discusso is a high-performance, full-stack discussion platform engineered to pri
 
 | E2E Test (Playwright + ML) | User Dashboard | Community Interface |
 | :--- | :--- | :--- |
-| ![Playwright Demo](./public/screenshots/e2e-demo.gif) | ![Home](./public/screenshots/home-page.png) | ![Community](./public/screenshots/community.png) |
+| ![Playwright Demo](./public/screenshots/sample_video.webm) | ![Home](./public/screenshots/home-page.png) | ![Community](./public/screenshots/community.png) |
 
 ---
 
